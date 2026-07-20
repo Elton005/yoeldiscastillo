@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Conoce más sobre Yoeldis Castillo Quiala - Escritor, investigador y conferencista especializado en desarrollo personal." />
+  <meta name="description" content="Conoce más sobre Yoeldis Castillo Quiala - Profesor, investigador y escritor especializado en desarrollo personal y psicología." />
   <title>Sobre Mí | Yoeldis Castillo Quiala</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -45,40 +45,62 @@
     </div>
   </header>
 
-  <!-- SOBRE EL AUTOR - VERSIÓN MÓVIL OPTIMIZADA -->
+  <!-- SOBRE EL AUTOR -->
   <section class="autor-page">
     <div class="container">
-      <div class="autor-page__container" style="display: flex; flex-direction: row; align-items: flex-start; gap: 1rem;">
+      
+      <!-- Título y Divider -->
+      <div style="margin-bottom: 3rem;">
+        <h1 class="page__title page__title--left" style="font-family: 'Cinzel', serif; font-size: 2.2rem; color: #d4c4b0; margin-bottom: 0.8rem; font-weight: 600; text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.5);">
+          Rigor académico, visión humana.
+        </h1>
+        <div class="section__divider section__divider--left" style="width: 60px; height: 2px; background: var(--gold-primary); margin: 0 0 1rem 0; position: relative; box-shadow: 0 0 8px rgba(212, 184, 150, 0.4);"></div>
+        <p class="section__subtitle" style="text-align: left; color: var(--text-secondary); font-size: 0.95rem; font-style: italic;">
+          Licenciado en Psicología y Máster en Dirección, dedicado a desbloquear el potencial humano.
+        </p>
+      </div>
+
+      <!-- Layout: Foto Izquierda + Texto Derecha -->
+      <div style="display: flex; flex-direction: row; gap: 3rem; align-items: flex-start; margin-bottom: 4rem;">
         
-        <!-- Foto compacta -->
-        <div class="autor-page__image" style="flex: 0 0 100px; min-width: 100px;">
-          <img src="img/autor.jpg" alt="Yoeldis Castillo Quiala" style="max-width: 100px; border-radius: 6px; box-shadow: 0 4px 15px rgba(0,0,0,0.6);" />
+        <!-- Foto del Autor -->
+        <div style="flex: 0 0 350px; min-width: 350px;">
+          <img src="img/autor.jpg" alt="Yoeldis Castillo Quiala" 
+               style="width: 100%; max-width: 350px; border-radius: 6px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6); 
+                      -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 70%, rgba(0,0,0,0) 100%); 
+                      mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 70%, rgba(0,0,0,0) 100%);" />
         </div>
         
-        <!-- Contenido -->
-        <div class="autor-page__content" style="flex: 1;">
-          <h1 class="page__title page__title--left" style="font-size: 1.5rem; margin-bottom: 0.5rem;">Sobre el Autor</h1>
-          <div class="section__divider section__divider--left" style="width: 40px; margin: 0 0 1rem 0;"></div>
-          
+        <!-- Contenido Biográfico -->
+        <div style="flex: 1; min-width: 0;">
           <div class="autor-page__text">
-            <p style="font-size: 0.85rem; line-height: 1.6; margin-bottom: 0.8rem;">
-              Yoeldis Castillo Quiala es escritor, investigador y conferencista especializado en comportamiento humano, desarrollo personal y crecimiento interior.
+            
+            <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.8; margin-bottom: 1.2rem;">
+              Yoeldis Castillo Quiala es <strong style="color: var(--gold-primary); font-weight: 600;">Profesor Asistente, Máster en Dirección y Licenciado en Psicología</strong>. Su sólida formación académica y experiencia profesional le han permitido profundizar en el estudio del comportamiento humano, la personalidad y los procesos que influyen en la toma de decisiones, integrando el conocimiento psicológico con una visión práctica orientada al desarrollo personal y organizacional.
             </p>
-            <p style="font-size: 0.85rem; line-height: 1.6; margin-bottom: 0.8rem;">
-              A través de sus libros y conferencias, busca inspirar a las personas a conocerse mejor, tomar decisiones conscientes y construir una vida con propósito.
+            
+            <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.8; margin-bottom: 1.2rem;">
+              A lo largo de su trayectoria, ha ampliado su preparación mediante el análisis de diversos enfoques de la psicología y las ciencias del comportamiento, con especial interés en la comprensión de las <strong style="color: var(--gold-primary); font-weight: 600;">diferencias individuales, el potencial humano</strong> y las herramientas que favorecen el crecimiento integral. Su trabajo se caracteriza por trasladar conceptos complejos a un lenguaje claro, accesible y directamente aplicable a la vida cotidiana.
             </p>
+            
+            <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.8; margin-bottom: 1.5rem;">
+              En sus obras y conferencias, aporta el rigor de su formación y su profunda experiencia en el análisis de la conducta. Su objetivo es ofrecer al lector una guía que invite a <strong style="color: var(--gold-primary); font-weight: 600;">conocerse mejor, comprender las propias fortalezas y áreas de mejora</strong>, y a construir relaciones más sanas, auténticas y conscientes con los demás.
+            </p>
+            
           </div>
   
-          <div class="autor-page__buttons" style="margin-top: 1rem;">
-            <a href="libros.html" class="btn btn--solid">
-              <i class="fas fa-book"></i> VER LIBROS
+          <!-- Botones de Acción -->
+          <div class="autor-page__buttons" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 2rem;">
+            <a href="libros.html" class="btn btn--solid" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 1rem 2rem; background: var(--gold-primary); color: var(--bg-primary); font-family: var(--font-body); font-size: 0.8rem; letter-spacing: 2px; font-weight: 500; border: none; border-radius: 4px; cursor: pointer; transition: var(--transition); text-decoration: none; box-shadow: 0 4px 15px rgba(212, 184, 150, 0.3);">
+              <i class="fas fa-book"></i> EXPLORAR MIS LIBROS
             </a>
-            <a href="contacto.html" class="btn btn--outline">
+            <a href="contacto.html" class="btn btn--outline" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 1rem 2rem; background: rgba(42, 31, 26, 0.5); color: var(--gold-primary); font-family: var(--font-body); font-size: 0.8rem; letter-spacing: 2px; font-weight: 500; border: 1px solid var(--gold-primary); border-radius: 4px; cursor: pointer; transition: var(--transition); text-decoration: none; backdrop-filter: blur(5px);">
               CONTACTAR <i class="fas fa-chevron-right"></i>
             </a>
           </div>
         </div>
       </div>
+
     </div>
   </section>
 
@@ -99,16 +121,14 @@
     </div>
   </section>
 
-  <!-- FOOTER: SELLO DE DESARROLLADOR -->
+  <!-- FOOTER -->
   <footer class="footer">
     <div class="container">
       <p class="footer__pre-text">Experiencia interactiva desarrollada por</p>
-      
       <div class="footer__brand">
         <img src="img/Eltonlogo.jpg" alt="EO Logo" class="footer__logo" />
         <h3 class="footer__name">ELTON OLIVARES</h3>
       </div>
-      
       <p class="footer__tagline">INNOVACIÓN • DISEÑO • TECNOLOGÍA</p>
     </div>
   </footer>
