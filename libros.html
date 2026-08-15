@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Descubre el libro ¿Por qué soy así? de Yoeldis Castillo Quiala - Las 8 dimensiones que explican tu forma de pensar, sentir y actuar." />
+  <meta name="description" content="Descubre los libros de Yoeldis Castillo Quiala." />
   <title>Mis Libros | Yoeldis Castillo Quiala</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -11,6 +11,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <link rel="stylesheet" href="css/styles.css" />
+  
+  <!-- Supabase CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -21,7 +24,6 @@
         <span class="logo__yc">YC</span>
         <span class="logo__text">Yoeldis Castillo Quiala<br><small>ESCRITOR</small></span>
       </a>
-
       <nav class="nav" id="nav">
         <ul class="nav__list">
           <li><a href="index.html" class="nav__link">INICIO</a></li>
@@ -31,70 +33,28 @@
           <li><a href="contacto.html" class="nav__link">CONTACTO</a></li>
         </ul>
       </nav>
-
       <div class="social social--desktop">
         <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
         <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
         <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-        <a href="#" aria-label="Email"><i class="far fa-envelope"></i></a>
       </div>
-
-      <button class="nav__toggle" id="navToggle" aria-label="Menú">
-        <i class="fas fa-bars"></i>
-      </button>
+      <button class="nav__toggle" id="navToggle" aria-label="Menú"><i class="fas fa-bars"></i></button>
     </div>
   </header>
 
-  <!-- LIBROS -->
+  <!-- SECCIÓN LIBROS DINÁMICA -->
   <section class="libros-page">
     <div class="container">
       <h1 class="page__title">El Viaje Comienza Aquí</h1>
       <div class="section__divider"></div>
       <p class="section__subtitle">Desarrollo personal, psicología y comportamiento humano al alcance de tu mano.</p>
 
-      <!-- LIBRO: ¿POR QUÉ SOY ASÍ? -->
-      <div class="libro-detalle">
-        <div class="libro-detalle__container">
-          <div class="libro-detalle__portada">
-            <img src="img/libros/conocete.jpg" alt="¿Por qué soy así?" />
-          </div>
-          <div class="libro-detalle__contenido">
-            <h2 class="libro-detalle__titulo">¿POR QUÉ SOY ASÍ?</h2>
-            <p class="libro-detalle__subtitulo">Las 8 dimensiones que explican tu forma de pensar, sentir y actuar</p>
-            <p class="libro-detalle__descripcion">
-              ¿Aún no tienes el libro? Descubre más sobre esta obra que te ayudará a conocerte mejor y transformar tu vida.
-            </p>
-            
-            <!-- ACORDEÓN -->
-            <div class="acordeon">
-              <button class="acordeon__trigger" aria-expanded="false">
-                <i class="fas fa-book-open"></i> DESCUBRE EL CONTENIDO DEL LIBRO
-                <i class="fas fa-chevron-down acordeon__icon"></i>
-              </button>
-              <div class="acordeon__content">
-                <div class="acordeon__inner">
-                  <h3>PRÓLOGO</h3>
-                  <p>
-                    Este libro nació de una pregunta simple pero profunda: <strong>¿Por qué soy así?</strong> Una interrogante que todos nos hemos hecho alguna vez, pero que pocas veces nos atrevemos a responder con honestidad.
-                  </p>
-                  <p>
-                    A lo largo de estas páginas, te invitamos a emprender un viaje de autoconocimiento a través de <strong>8 dimensiones esenciales</strong> que explican tu forma de pensar, sentir y actuar. No encontrarás etiquetas ni juicios, sino un espejo para mirarte con claridad y compasión.
-                  </p>
-                  <p>
-                    Porque comprenderte no es el final del camino. Es el comienzo de una vida más consciente.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <!-- BOTÓN AMAZON -->
-            <a href="https://amazon.com" target="_blank" class="btn-amazon">
-              <i class="fab fa-amazon"></i> Obtener en Amazon
-            </a>
-          </div>
-        </div>
+      <!-- Aquí se inyectarán los libros desde Supabase -->
+      <div id="lista-libros" class="libros-grid">
+        <p style="text-align: center; color: var(--text-secondary); padding: 3rem;">
+          <i class="fas fa-spinner fa-spin"></i> Cargando biblioteca...
+        </p>
       </div>
-
     </div>
   </section>
 
@@ -110,6 +70,7 @@
     </div>
   </footer>
 
-  <script src="js/main.js"></script>
+  <script src="js/main.js"></script> <!-- Tu JS global para el menú -->
+  <script src="js/libros.js"></script> <!-- El nuevo script que crearemos -->
 </body>
 </html>

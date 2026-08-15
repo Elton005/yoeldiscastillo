@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Administración | Yoeldis Castillo Quiala</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  
+  <!-- Estilos globales y específicos del admin -->
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+  
+  <!-- 1. Supabase JS Client (Debe cargar primero) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- 2. TinyMCE Editor -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js"></script>
+  
+  <!-- 3. Nuestro script (defer asegura que espere a que el HTML esté listo) -->
+  <script src="js/admin.js" defer></script>
+</head>
+<body>
+
+  <!-- HEADER ADMIN -->
+  <header class="header">
+    <div class="container header__container">
+      <a href="index.html" class="logo">
+        <span class="logo__yc"><i class="fas fa-shield-alt"></i></span>
+        <span class="logo__text">Panel de Administración<br><small>YOELDIS CASTILLO</small></span>
+      </a>
+      <div id="userInfo" style="display: none; align-items: center; gap: 1rem;">
+        <span style="color: var(--text-secondary); font-size: 0.85rem;">
+          <i class="fas fa-user-circle"></i> <span id="userName">Admin</span>
+        </span>
+        <!-- ID agregado para el botón de salir -->
+        <button id="btnLogout" class="btn btn--outline" style="padding: 0.5rem 1rem; font-size: 0.75rem; min-width: auto;">
+          <i class="fas fa-sign-out-alt"></i> Salir
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- PANTALLA DE LOGIN -->
+  <section id="loginScreen" class="contacto-page" style="min-height: 100vh; display: flex; align-items: center; justify-content: center;">
+    <div class="contacto-card" style="max-width: 420px;">
+      <i class="fas fa-lock contacto__icon" style="font-size: 3rem;"></i>
+      <h2 class="contacto__title" style="font-size: 1.8rem;">Acceso Restringido</h2>
+      <p class="contacto__text" style="font-size: 0.95rem; margin-bottom: 2rem;">
+        Esta área es exclusiva para el administrador. Inicia sesión para gestionar el contenido de la web.
+      </p>
+      <!-- ID agregado para el botón de login -->
+      <button id="btnLoginGoogle" class="btn btn--solid" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.8rem;">
+        <i class="fab fa-google"></i> Iniciar sesión con Google
+      </button>
+    </div>
+  </section>
+
+  <!-- PANTALLA DEL DASHBOARD -->
+  <section id="dashboardScreen" class="autor-page" style="display: none; padding-top: 120px; padding-bottom: 80px;">
+    <div class="container">
+      <h1 class="page__title">Panel de Control</h1>
+      <div class="section__divider"></div>
+
+      <!-- SECCIÓN LIBROS -->
+      <div style="margin-bottom: 4rem;">
+        <h2 class="page__title page__title--left" style="font-size: 1.5rem; margin-bottom: 1.5rem;">
+          <i class="fas fa-book" style="margin-right: 0.5rem;"></i> Gestionar Libros
+        </h2>
+        
+        <div class="libro-detalle" style="padding: 2rem; margin-bottom: 2rem;">
+          <h3 style="color: var(--gold-primary); margin-bottom: 1.5rem; font-family: var(--font-heading); font-size: 1.1rem;">
+            <i class="fas fa-plus-circle"></i> Agregar Nuevo Libro
+          </h3>
+          <form id="formLibro" class="admin-form">
+            <input type="hidden" id="libroId" />
+            <input type="text" id="libroTitulo" class="admin-input" placeholder="Título del libro *" required />
+            <input type="text" id="libroSubtitulo" class="admin-input" placeholder="Subtítulo" />
+            
+            <select id="libroEstado" class="select-input">
+              <option value="publicado">Publicado</option>
+              <option value="proximamente">Próximamente</option>
+              <option value="agotado">Agotado</option>
+            </select>
+            
+            <textarea id="libroDescripcion" class="admin-input" placeholder="Descripción corta" rows="2"></textarea>
+            <textarea id="libroPrologo" class="admin-input" placeholder="Prólogo o contenido destacado" rows="3"></textarea>
+            
+            <div style="display: grid; gap: 0.5rem;">
+              <label style="color: var(--text-secondary); font-size: 0.85rem;">
+                <i class="fas fa-image"></i> Imagen del libro
+              </label>
+              <div style="display: flex; gap: 1rem; align-items: flex-start;">
+                <input type="file" id="libroImagenFile" class="admin-input" accept="image/*" style="flex: 1;" />
+                <img id="imagenPreview" src="" alt="Preview" style="width: 80px; height: 120px; object-fit: cover; border-radius: 4px; border: 1px solid var(--gold-muted); display: none;" />
+              </div>
+              <input type="hidden" id="libroImagen" />
+              <small style="color: var(--text-secondary); font-size: 0.75rem;">
+                <i class="fas fa-info-circle"></i> Sube una imagen o pega una URL directamente
+              </small>
+              <input type="url" id="libroImagenUrl" class="admin-input" placeholder="O pega una URL de imagen existente" />
+            </div>
+            
+            <input type="url" id="libroAmazon" class="admin-input" placeholder="Enlace a Amazon" />
+            <input type="url" id="libroApk" class="admin-input" placeholder="Enlace a APK interactiva (opcional)" />
+            <input type="date" id="libroFecha" class="admin-input" />
+            
+            <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+              <button type="submit" class="btn btn--solid" style="justify-self: start;">
+                <i class="fas fa-save"></i> <span id="btnLibroText">Guardar Libro</span>
+              </button>
+              <button type="button" id="btnCancelarEdicion" class="btn btn--outline" style="display: none; justify-self: start;">
+                <i class="fas fa-times"></i> Cancelar edición
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div id="listaLibros" style="display: grid; gap: 1rem;">
+          <p style="color: var(--text-secondary); text-align: center; padding: 2rem;">
+            <i class="fas fa-spinner fa-spin"></i> Cargando libros...
+          </p>
+        </div>
+      </div>
+
+      <!-- SECCIÓN ARTÍCULOS -->
+      <div>
+        <h2 class="page__title page__title--left" style="font-size: 1.5rem; margin-bottom: 1.5rem;">
+          <i class="fas fa-newspaper" style="margin-right: 0.5rem;"></i> Gestionar Artículos
+        </h2>
+        
+        <div class="libro-detalle" style="padding: 2rem; margin-bottom: 2rem;">
+          <h3 style="color: var(--gold-primary); margin-bottom: 1.5rem; font-family: var(--font-heading); font-size: 1.1rem;">
+            <i class="fas fa-plus-circle"></i> Agregar Nuevo Artículo
+          </h3>
+          <form id="formArticulo" class="admin-form">
+            <input type="hidden" id="articuloId" />
+            <input type="text" id="articuloTitulo" class="admin-input" placeholder="Título del artículo *" required />
+            <input type="text" id="articuloCategoria" class="admin-input" placeholder="Categoría (ej: Psicología, Desarrollo Personal)" />
+            <textarea id="articuloResumen" class="admin-input" placeholder="Resumen corto" rows="2"></textarea>
+            
+            <!-- TinyMCE se aplicará a este textarea -->
+            <textarea id="articuloContenido" class="admin-input" placeholder="Escribe el contenido del artículo aquí..."></textarea>
+            
+            <input type="url" id="articuloImagen" class="admin-input" placeholder="URL de la imagen de portada" />
+            
+            <label class="custom-checkbox">
+              <input type="checkbox" id="articuloPublicado" checked /> 
+              Publicar inmediatamente (visible en la web)
+            </label>
+            
+            <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+              <button type="submit" class="btn btn--solid" style="justify-self: start;">
+                <i class="fas fa-save"></i> <span id="btnArticuloText">Guardar Artículo</span>
+              </button>
+              <button type="button" id="btnCancelarEdicionArt" class="btn btn--outline" style="display: none; justify-self: start;">
+                <i class="fas fa-times"></i> Cancelar edición
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div id="listaArticulos" style="display: grid; gap: 1rem;">
+          <p style="color: var(--text-secondary); text-align: center; padding: 2rem;">
+            <i class="fas fa-spinner fa-spin"></i> Cargando artículos...
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <p class="footer__pre-text">Experiencia interactiva desarrollada por</p>
+      <div class="footer__brand">
+        <img src="img/Eltonlogo.jpg" alt="EO Logo" class="footer__logo" />
+        <h3 class="footer__name">ELTON OLIVARES</h3>
+      </div>
+      <p class="footer__tagline">INNOVACIÓN • DISEÑO • TECNOLOGÍA</p>
+    </div>
+  </footer>
+</body>
+</html>

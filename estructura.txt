@@ -14,3 +14,6 @@ yoeldis-castillo/
         ├── decisiones.jpg
         ├── diario.jpg
         └── reaccion.jpg
+vamos a hacerle algunos cambios , primero debemos anadir login con google usando supabase,
+lo segundo usando el mismo supabase debermos crear una base de datos para libros y para articulos,y crear una pagina secreta de administrador para que se pueda editar el contenido de esa base de datos
+3ro debemos en la secciond ebiblioteca dare publicidad a otro autor, cuando lo vayamos a hacer te envio los datos y lo que debemos poner 

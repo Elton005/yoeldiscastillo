@@ -3,14 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Próximamente: Artículos, reflexiones y recursos sobre psicología y desarrollo personal por Yoeldis Castillo Quiala. Suscríbete para recibir las novedades." />
-  <title>Artículos y Recursos | Yoeldis Castillo Quiala</title>
+  <meta name="description" content="Artículos, reflexiones y recursos sobre psicología y desarrollo personal por Yoeldis Castillo Quiala." />
+  <title>Artículos | Yoeldis Castillo Quiala</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <link rel="stylesheet" href="css/styles.css" />
+  
+  <!-- Supabase CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -21,7 +24,6 @@
         <span class="logo__yc">YC</span>
         <span class="logo__text">Yoeldis Castillo Quiala<br><small>ESCRITOR</small></span>
       </a>
-
       <nav class="nav" id="nav">
         <ul class="nav__list">
           <li><a href="index.html" class="nav__link">INICIO</a></li>
@@ -31,69 +33,61 @@
           <li><a href="contacto.html" class="nav__link">CONTACTO</a></li>
         </ul>
       </nav>
-
       <div class="social social--desktop">
         <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
         <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
         <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-        <a href="#" aria-label="Email"><i class="far fa-envelope"></i></a>
       </div>
-
-      <button class="nav__toggle" id="navToggle" aria-label="Menú">
-        <i class="fas fa-bars"></i>
-      </button>
+      <button class="nav__toggle" id="navToggle" aria-label="Menú"><i class="fas fa-bars"></i></button>
     </div>
   </header>
 
-  <!-- PRÓXIMAMENTE + NEWSLETTER -->
-  <section class="coming-soon">
+  <!-- SECCIÓN ARTÍCULOS DINÁMICA -->
+  <section class="articulos-page">
     <div class="container">
-      <div class="coming-soon__content">
-        <!-- Icono cambiado a pluma/escritura para artículos -->
-        <i class="fas fa-pen-fancy coming-soon__icon"></i>
-        
-        <h1 class="coming-soon__title">Próximamente: Artículos y Recursos</h1>
-        
-        <p class="coming-soon__text">
-          Estoy preparando reflexiones, herramientas prácticas y análisis profundos sobre psicología y desarrollo personal.<br>
-          <strong>Sé el primero en recibir las novedades</strong> directamente en tu correo.
+      <h1 class="page__title">Reflexiones y Recursos</h1>
+      <div class="section__divider"></div>
+      <p class="section__subtitle">Ideas, herramientas y análisis para tu crecimiento personal.</p>
+
+      <!-- Aquí se inyectarán los artículos desde Supabase -->
+      <div id="lista-articulos" class="articulos-grid">
+        <p style="text-align: center; color: var(--text-secondary); padding: 3rem; grid-column: 1 / -1;">
+          <i class="fas fa-spinner fa-spin"></i> Cargando artículos...
         </p>
-
-        <!-- FORMULARIO DE SUSCRIPCIÓN COMPACTO -->
-        <div class="newsletter-compact">
-          <form class="newsletter__form" action="https://formspree.io/f/TU_ID_AQUI" method="POST" style="max-width: 500px; margin: 0 auto;">
-            <input type="email" name="email" placeholder="Tu correo electrónico" required />
-            <button type="submit" class="btn btn--solid">NOTIFICARME</button>
-          </form>
-          <p class="newsletter__privacy">
-            <i class="fas fa-lock" style="font-size: 0.7rem; margin-right: 0.3rem;"></i> 
-            Respetamos tu privacidad. Cero spam.
-          </p>
-        </div>
-
-        <div style="margin-top: 2.5rem;">
-          <a href="index.html" class="btn btn--outline">
-            <i class="fas fa-home"></i> VOLVER AL INICIO
-          </a>
-        </div>
       </div>
     </div>
   </section>
 
-  <!-- FOOTER: SELLO DE DESARROLLADOR -->
+  <!-- NEWSLETTER -->
+  <section class="newsletter">
+    <div class="container newsletter__container">
+      <div class="newsletter__icon">
+        <i class="far fa-envelope"></i>
+      </div>
+      <div class="newsletter__content">
+        <h3>SUSCRÍBETE A MI BOLETÍN</h3>
+        <p>Recibe artículos, recursos y novedades directamente en tu correo.</p>
+      </div>
+      <form class="newsletter__form" action="https://formspree.io/f/TU_ID_AQUI" method="POST">
+        <input type="email" name="email" placeholder="Tu correo electrónico" required />
+        <button type="submit" class="btn btn--solid">SUSCRIBIRME</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
   <footer class="footer">
     <div class="container">
       <p class="footer__pre-text">Experiencia interactiva desarrollada por</p>
-      
       <div class="footer__brand">
         <img src="img/Eltonlogo.jpg" alt="EO Logo" class="footer__logo" />
         <h3 class="footer__name">ELTON OLIVARES</h3>
       </div>
-      
       <p class="footer__tagline">INNOVACIÓN • DISEÑO • TECNOLOGÍA</p>
     </div>
   </footer>
 
   <script src="js/main.js"></script>
+  <script src="js/articulos.js"></script>
 </body>
 </html>
