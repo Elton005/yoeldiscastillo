@@ -5,19 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Descubre los libros de Yoeldis Castillo Quiala." />
   <title>Mis Libros | Yoeldis Castillo Quiala</title>
-
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <link rel="stylesheet" href="css/styles.css" />
-  
-  <!-- Supabase CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
-  <!-- HEADER -->
   <header class="header">
     <div class="container header__container">
       <a href="index.html" class="logo">
@@ -32,33 +28,100 @@
           <li><a href="articulos.html" class="nav__link">ARTÍCULOS</a></li>
           <li><a href="contacto.html" class="nav__link">CONTACTO</a></li>
         </ul>
+        <div class="nav__login-mobile">
+          <button id="btnLoginUsuarioMobile" class="btn btn--solid"><i class="fas fa-user"></i> Iniciar Sesión</button>
+        </div>
       </nav>
-      <div class="social social--desktop">
-        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+      <div class="header__actions">
+        <div class="social social--desktop">
+          <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+        <button id="btnLoginUsuarioDesktop" class="btn btn--outline btn-login"><i class="fas fa-user"></i> Iniciar Sesión</button>
       </div>
       <button class="nav__toggle" id="navToggle" aria-label="Menú"><i class="fas fa-bars"></i></button>
     </div>
   </header>
 
-  <!-- SECCIÓN LIBROS DINÁMICA -->
   <section class="libros-page">
     <div class="container">
       <h1 class="page__title">El Viaje Comienza Aquí</h1>
       <div class="section__divider"></div>
       <p class="section__subtitle">Desarrollo personal, psicología y comportamiento humano al alcance de tu mano.</p>
-
-      <!-- Aquí se inyectarán los libros desde Supabase -->
       <div id="lista-libros" class="libros-grid">
-        <p style="text-align: center; color: var(--text-secondary); padding: 3rem;">
-          <i class="fas fa-spinner fa-spin"></i> Cargando biblioteca...
-        </p>
+        <p style="text-align: center; color: var(--text-secondary); padding: 3rem;"><i class="fas fa-spinner fa-spin"></i> Cargando biblioteca...</p>
       </div>
     </div>
   </section>
 
-  <!-- FOOTER -->
+  <section class="escritor-amigo">
+    <div class="container">
+      <div class="escritor-amigo__header">
+        <span class="escritor-amigo__label">LETRAS E HISTORIA DESDE 2006</span>
+        <h2 class="escritor-amigo__titulo">Junior Osmany Coronel Durán</h2>
+        <p class="escritor-amigo__profesion">Escritor (Narrador y ensayista) · Licenciado en Derecho</p>
+      </div>
+      <div class="escritor-amigo__container">
+        <div class="escritor-amigo__contenido">
+          <blockquote class="escritor-amigo__cita">"Cada libro deja una huella. La verdadera historia comienza en quien la lee."</blockquote>
+          <div class="escritor-amigo__texto">
+            <p>Cada libro nace de una pregunta, una historia o una idea que merece ser explorada. Aunque los géneros cambien, la búsqueda permanece: ofrecer al lector una experiencia que perdure más allá de la última página.</p>
+          </div>
+          <div class="escritor-amigo__acciones">
+            <a href="https://lahuellaescrita.com" target="_blank" class="btn btn--solid"><i class="fas fa-external-link-alt"></i> Visitar su página</a>
+            <a href="https://lahuellaescrita.com/biblioteca.html" class="btn btn--outline"><i class="fas fa-book"></i> Ver sus libros</a>
+          </div>
+        </div>
+        <div class="escritor-amigo__imagen">
+          <img src="img/junior-osmany.jpg" alt="Junior Osmany Coronel Durán" />
+          <div class="escritor-amigo__imagen-overlay"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MODAL DE LOGIN/REGISTRO -->
+  <div id="modalAuth" class="modal-auth" style="display: none;">
+    <div class="modal-auth__content">
+      <button class="modal-auth__close" onclick="cerrarModalAuth()"><i class="fas fa-times"></i></button>
+      
+      <!-- GOOGLE PRIMERO -->
+      <button onclick="loginConGoogle()" class="btn btn--outline" style="width: 100%; margin-bottom: 1.5rem;">
+        <i class="fab fa-google"></i> Continuar con Google
+      </button>
+      
+      <div class="modal-auth__divider"><span>o continúa con</span></div>
+      
+      <!-- TABS -->
+      <div class="modal-auth__tabs">
+        <button class="modal-auth__tab active" onclick="cambiarTab('login')">Iniciar Sesión</button>
+        <button class="modal-auth__tab" onclick="cambiarTab('registro')">Registrarse</button>
+      </div>
+      
+      <!-- Formulario Login -->
+      <form id="formLogin" class="modal-auth__form">
+        <h3>Bienvenido de vuelta</h3>
+        <input type="email" id="loginEmail" placeholder="Tu correo electrónico" required class="admin-input" />
+        <input type="password" id="loginPassword" placeholder="Contraseña" required class="admin-input" />
+        <button type="submit" class="btn btn--solid" style="width: 100%; margin-top: 1rem;">
+          <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+        </button>
+      </form>
+      
+      <!-- Formulario Registro -->
+      <form id="formRegistro" class="modal-auth__form" style="display: none;">
+        <h3>Crea tu cuenta</h3>
+        <input type="text" id="registroNombre" placeholder="Tu nombre" class="admin-input" />
+        <input type="email" id="registroEmail" placeholder="Tu correo electrónico" required class="admin-input" />
+        <input type="password" id="registroPassword" placeholder="Contraseña (mín. 6 caracteres)" required class="admin-input" />
+        <button type="submit" class="btn btn--solid" style="width: 100%; margin-top: 1rem;">
+          <i class="fas fa-user-plus"></i> Registrarse
+        </button>
+      </form>
+    </div>
+  </div>
+
   <footer class="footer">
     <div class="container">
       <p class="footer__pre-text">Experiencia interactiva desarrollada por</p>
@@ -70,7 +133,7 @@
     </div>
   </footer>
 
-  <script src="js/main.js"></script> <!-- Tu JS global para el menú -->
-  <script src="js/libros.js"></script> <!-- El nuevo script que crearemos -->
+  <script src="js/main.js"></script>
+  <script src="js/libros.js"></script>
 </body>
 </html>

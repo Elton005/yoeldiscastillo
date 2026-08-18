@@ -3,18 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Yoeldis Castillo Quiala - Escritor, investigador y profesor especializado en desarrollo personal y psicología." />
+  <meta name="description" content="Yoeldis Castillo Quiala - Escritor, investigador y profesor." />
   <title>Yoeldis Castillo Quiala | Inicio</title>
-
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <link rel="stylesheet" href="css/styles.css" />
+  <!-- Supabase (Necesario en TODAS las páginas para el login) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
-  <!-- HEADER -->
+  <!-- HEADER UNIFICADO -->
   <header class="header">
     <div class="container header__container">
       <a href="index.html" class="logo">
@@ -30,13 +31,24 @@
           <li><a href="articulos.html" class="nav__link">ARTÍCULOS</a></li>
           <li><a href="contacto.html" class="nav__link">CONTACTO</a></li>
         </ul>
+        <!-- Botón de Login DENTRO del menú hamburguesa (solo visible en móvil) -->
+        <div class="nav__login-mobile">
+          <button id="btnLoginUsuarioMobile" class="btn btn--solid">
+            <i class="fas fa-user"></i> Iniciar Sesión
+          </button>
+        </div>
       </nav>
 
-      <div class="social social--desktop">
-        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-        <a href="#" aria-label="Email"><i class="far fa-envelope"></i></a>
+      <!-- Acciones Desktop (Redes + Login) -->
+      <div class="header__actions">
+        <div class="social social--desktop">
+          <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+        <button id="btnLoginUsuarioDesktop" class="btn btn--outline btn-login">
+          <i class="fas fa-user"></i> Iniciar Sesión
+        </button>
       </div>
 
       <button class="nav__toggle" id="navToggle" aria-label="Menú">
@@ -45,46 +57,80 @@
     </div>
   </header>
 
-  <!-- HERO (SIN FOTO, TEXTO CENTRADO E IMPACTANTE) -->
+  <!-- HERO -->
   <section class="hero">
     <div class="container hero__container">
       <div class="hero__content">
         <h1 class="hero__title">Comprende tu mente,<br>transforma tu vida.</h1>
         <div class="hero__divider"></div>
-        
-        <!-- NUEVO: Nombre del autor con protagonismo -->
         <h2 class="hero__author">Yoeldis Castillo Quiala</h2>
-        
-        <p class="hero__subtitle">ESCRITOR • PSICOLOGO • PROFESOR</p>
+        <p class="hero__subtitle">ESCRITOR • PSICÓLOGO • PROFESOR</p>
         <p class="hero__description">
           Traduzco la complejidad del comportamiento humano en herramientas prácticas para que construyas una vida con propósito, claridad y decisiones conscientes.
         </p>
         <div class="hero__buttons">
-          <a href="libros.html" class="btn btn--solid">
-            <i class="fas fa-book"></i> EXPLORAR MIS LIBROS
-          </a>
-          <a href="sobre-mi.html" class="btn btn--outline">
-            CONOCE MI TRAYECTORIA <i class="fas fa-chevron-right"></i>
-          </a>
+          <a href="libros.html" class="btn btn--solid"><i class="fas fa-book"></i> EXPLORAR MIS LIBROS</a>
+          <a href="sobre-mi.html" class="btn btn--outline">CONOCE MI TRAYECTORIA <i class="fas fa-chevron-right"></i></a>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- FOOTER: SELLO DE DESARROLLADOR -->
+  <!-- MODAL DE LOGIN/REGISTRO -->
+  <div id="modalAuth" class="modal-auth" style="display: none;">
+    <div class="modal-auth__content">
+      <button class="modal-auth__close" onclick="cerrarModalAuth()"><i class="fas fa-times"></i></button>
+      
+      <!-- GOOGLE PRIMERO -->
+      <button onclick="loginConGoogle()" class="btn btn--outline" style="width: 100%; margin-bottom: 1.5rem;">
+        <i class="fab fa-google"></i> Continuar con Google
+      </button>
+      
+      <div class="modal-auth__divider"><span>o continúa con</span></div>
+      
+      <!-- TABS -->
+      <div class="modal-auth__tabs">
+        <button class="modal-auth__tab active" onclick="cambiarTab('login')">Iniciar Sesión</button>
+        <button class="modal-auth__tab" onclick="cambiarTab('registro')">Registrarse</button>
+      </div>
+      
+      <!-- Formulario Login -->
+      <form id="formLogin" class="modal-auth__form">
+        <h3>Bienvenido de vuelta</h3>
+        <input type="email" id="loginEmail" placeholder="Tu correo electrónico" required class="admin-input" />
+        <input type="password" id="loginPassword" placeholder="Contraseña" required class="admin-input" />
+        <button type="submit" class="btn btn--solid" style="width: 100%; margin-top: 1rem;">
+          <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+        </button>
+      </form>
+      
+      <!-- Formulario Registro -->
+      <form id="formRegistro" class="modal-auth__form" style="display: none;">
+        <h3>Crea tu cuenta</h3>
+        <input type="text" id="registroNombre" placeholder="Tu nombre" class="admin-input" />
+        <input type="email" id="registroEmail" placeholder="Tu correo electrónico" required class="admin-input" />
+        <input type="password" id="registroPassword" placeholder="Contraseña (mín. 6 caracteres)" required class="admin-input" />
+        <button type="submit" class="btn btn--solid" style="width: 100%; margin-top: 1rem;">
+          <i class="fas fa-user-plus"></i> Registrarse
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
   <footer class="footer">
     <div class="container">
       <p class="footer__pre-text">Experiencia interactiva desarrollada por</p>
-      
       <div class="footer__brand">
         <img src="img/Eltonlogo.jpg" alt="EO Logo" class="footer__logo" />
         <h3 class="footer__name">ELTON OLIVARES</h3>
       </div>
-      
       <p class="footer__tagline">INNOVACIÓN • DISEÑO • TECNOLOGÍA</p>
     </div>
   </footer>
 
+  <!-- Scripts Globales -->
   <script src="js/main.js"></script>
+  <script src="js/libros.js"></script> <!-- Solo si es libros.html, quitar en las demás -->
 </body>
 </html>

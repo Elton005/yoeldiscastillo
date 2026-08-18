@@ -1,16 +1,10 @@
 // ==========================================
-// CONFIGURACIÓN Y CARGA DE ARTÍCULOS PÚBLICOS
+// CARGAR ARTÍCULOS
 // ==========================================
-const SUPABASE_URL = 'https://jjbztkljgsdwrqylspeg.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpqYnp0a2xqZ3Nkd3JxeWxzcGVnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY2NDE4MjgsImV4cCI6MjEwMjIxNzgyOH0.lDYEuyrbVDRoMyQwfj4nQk-gve84RhZiFnyRAYhGfD4';
-
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
 async function cargarArticulosPublicos() {
   const container = document.getElementById('lista-articulos');
   if (!container) return;
 
-  // Solo traer artículos publicados
   const { data, error } = await sb
     .from('articulos')
     .select('*')
@@ -18,41 +12,37 @@ async function cargarArticulosPublicos() {
     .order('creado_en', { ascending: false });
 
   if (error) {
+    console.error('Error al cargar artículos:', error);
     container.innerHTML = '<p style="color: #ff6b6b; text-align: center; grid-column: 1 / -1;">Error al cargar los artículos.</p>';
-    console.error('Error Supabase:', error);
     return;
   }
 
   if (!data || data.length === 0) {
-    container.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 3rem; grid-column: 1 / -1;">Aún no hay artículos publicados. ¡Vuelve pronto!</p>';
+    container.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 3rem; grid-column: 1 / -1;">Próximamente nuevos artículos. ¡Vuelve pronto!</p>';
     return;
   }
 
-  // Renderizar cada artículo
   container.innerHTML = data.map(art => generarHTMLArticulo(art)).join('');
+  console.log(`✅ ${data.length} artículos cargados correctamente`);
 }
 
 function generarHTMLArticulo(art) {
-  // Imagen de portada (con fallback)
   const imagenHTML = art.imagen_url 
-    ? `<div class="articulo-card__img-wrapper"><img src="${art.imagen_url}" alt="${art.titulo}" class="articulo-card__img" /></div>` 
+    ? `<div class="articulo-card__img-wrapper"><img src="${art.imagen_url}" alt="${art.titulo}" class="articulo-card__img" loading="lazy" /></div>` 
     : `<div class="articulo-card__img-wrapper"><div class="articulo-card__img-placeholder"><i class="fas fa-newspaper fa-3x"></i></div></div>`;
 
-  // Categoría (si existe)
   const categoriaHTML = art.categoria 
     ? `<span class="articulo-card__categoria"><i class="fas fa-tag"></i> ${art.categoria}</span>` 
     : '';
 
-  // Resumen o extracto del contenido (primeros 150 caracteres)
   let resumen = art.resumen || '';
   if (!resumen && art.contenido) {
-    // Si no hay resumen, extraer del contenido (quitando tags HTML)
     const textoLimpio = art.contenido.replace(/<[^>]*>/g, '');
-    resumen = textoLimpio.substring(0, 150) + (textoLimpio.length > 150 ? '...' : '');
+    resumen = textoLimpio.substring(0, 120) + (textoLimpio.length > 120 ? '...' : '');
   }
 
   return `
-    <article class="articulo-card">
+    <article class="articulo-card" data-id="${art.id}">
       ${imagenHTML}
       <div class="articulo-card__contenido">
         ${categoriaHTML}
@@ -66,46 +56,163 @@ function generarHTMLArticulo(art) {
   `;
 }
 
-// Función para abrir un artículo (modal o página dedicada)
-window.abrirArticulo = function(id) {
-  // Por ahora, mostramos un alert con el contenido completo
-  // En el futuro podemos crear una página dinámica articulo.html?id=X
-  sb.from('articulos').select('*').eq('id', id).single().then(({ data, error }) => {
-    if (error) {
+// ==========================================
+// ABRIR ARTÍCULO (MODAL)
+// ==========================================
+window.abrirArticulo = async function(id) {
+  console.log(' Abriendo artículo ID:', id);
+  
+  try {
+    const { data: art, error } = await sb
+      .from('articulos')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error || !art) {
+      console.error('Error al cargar artículo:', error);
       alert('Error al cargar el artículo');
       return;
     }
     
-    // Crear un modal simple para mostrar el contenido
+    // Formatear fecha
+    const fecha = new Date(art.creado_en).toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    
+    // Crear modal
     const modal = document.createElement('div');
     modal.className = 'articulo-modal';
+    modal.id = 'modalArticuloActivo';
+    
     modal.innerHTML = `
       <div class="articulo-modal__content">
         <button class="articulo-modal__close" onclick="cerrarModal()"><i class="fas fa-times"></i></button>
-        <h2 class="articulo-modal__titulo">${data.titulo}</h2>
-        ${data.categoria ? `<span class="articulo-modal__categoria">${data.categoria}</span>` : ''}
-        <div class="articulo-modal__body">${data.contenido}</div>
+        
+        ${art.imagen_url ? `
+          <div class="articulo-modal__header-img">
+            <img src="${art.imagen_url}" alt="${art.titulo}" />
+            <div class="articulo-modal__overlay"></div>
+          </div>
+        ` : ''}
+        
+        <div class="articulo-modal__body">
+          ${art.categoria ? `<span class="articulo-modal__categoria">${art.categoria}</span>` : ''}
+          <h1 class="articulo-modal__titulo">${art.titulo}</h1>
+          
+          <div class="articulo-modal__meta">
+            <span><i class="far fa-calendar"></i> ${fecha}</span>
+            <span><i class="far fa-user"></i> Yoeldis Castillo Quiala</span>
+          </div>
+          
+          ${art.resumen ? `<p class="articulo-modal__resumen">${art.resumen}</p>` : ''}
+          
+          <div class="articulo-modal__texto">
+            ${art.contenido}
+          </div>
+          
+          <div class="articulo-modal__footer">
+            <div class="articulo-modal__compartir">
+              <span>Compartir:</span>
+              <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}" target="_blank" class="btn-compartir" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+              <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(art.titulo)}&url=${encodeURIComponent(window.location.href)}" target="_blank" class="btn-compartir" title="Twitter"><i class="fab fa-twitter"></i></a>
+              <a href="https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(window.location.href)}" target="_blank" class="btn-compartir" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+              <button onclick="copiarEnlace()" class="btn-compartir" title="Copiar enlace"><i class="fas fa-link"></i></button>
+            </div>
+          </div>
+          
+          <div class="articulo-modal__cerrar-final">
+            <button onclick="cerrarModal()" class="btn btn--solid">
+              <i class="fas fa-times"></i> Cerrar artículo
+            </button>
+          </div>
+          
+          <div class="articulo-modal__autor">
+            <div class="autor-info">
+              <h3>Yoeldis Castillo Quiala</h3>
+              <p>Escritor, Psicólogo y Profesor especializado en desarrollo personal y comportamiento humano.</p>
+              <a href="sobre-mi.html" class="btn btn--outline">Conoce más sobre mí</a>
+            </div>
+
+          </div>
+        </div>
       </div>
     `;
+    
     document.body.appendChild(modal);
     document.body.style.overflow = 'hidden';
-  });
-};
-
-window.cerrarModal = function() {
-  const modal = document.querySelector('.articulo-modal');
-  if (modal) {
-    modal.remove();
-    document.body.style.overflow = '';
+    
+    // Animación de entrada
+    setTimeout(() => {
+      modal.style.opacity = '1';
+      const content = modal.querySelector('.articulo-modal__content');
+      if (content) {
+        content.style.transform = 'translateY(0) scale(1)';
+      }
+    }, 10);
+    
+    console.log('✅ Modal abierto correctamente');
+    
+  } catch (err) {
+    console.error('Error inesperado:', err);
+    alert('Error al cargar el artículo');
   }
 };
 
+// ==========================================
+// CERRAR MODAL
+// ==========================================
+window.cerrarModal = function() {
+  const modal = document.getElementById('modalArticuloActivo');
+  if (modal) {
+    modal.style.opacity = '0';
+    const content = modal.querySelector('.articulo-modal__content');
+    if (content) {
+      content.style.transform = 'translateY(20px) scale(0.95)';
+    }
+    setTimeout(() => {
+      modal.remove();
+      document.body.style.overflow = '';
+    }, 300);
+    console.log('🔒 Modal cerrado');
+  }
+};
+
+// ==========================================
+// COPIAR ENLACE
+// ==========================================
+window.copiarEnlace = function() {
+  navigator.clipboard.writeText(window.location.href).then(() => {
+    alert('¡Enlace copiado al portapapeles!');
+  }).catch(err => {
+    console.error('Error al copiar:', err);
+  });
+};
+
+// ==========================================
+// EVENTOS GLOBALES
+// ==========================================
+
 // Cerrar modal al hacer clic fuera
 document.addEventListener('click', (e) => {
-  if (e.target.classList.contains('articulo-modal')) {
+  if (e.target && e.target.id === 'modalArticuloActivo') {
     cerrarModal();
   }
 });
 
-// Ejecutar cuando cargue la página
-document.addEventListener('DOMContentLoaded', cargarArticulosPublicos);
+// Cerrar modal con tecla ESC
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    cerrarModal();
+  }
+});
+
+// ==========================================
+// INICIALIZAR
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('📰 Iniciando página de artículos...');
+  cargarArticulosPublicos();
+});

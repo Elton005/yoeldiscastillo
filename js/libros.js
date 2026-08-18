@@ -1,11 +1,3 @@
-// ==========================================
-// CONFIGURACIÓN Y CARGA DE LIBROS PÚBLICOS
-// ==========================================
-const SUPABASE_URL = 'https://jjbztkljgsdwrqylspeg.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpqYnp0a2xqZ3Nkd3JxeWxzcGVnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY2NDE4MjgsImV4cCI6MjEwMjIxNzgyOH0.lDYEuyrbVDRoMyQwfj4nQk-gve84RhZiFnyRAYhGfD4';
-
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
 async function cargarLibrosPublicos() {
   const container = document.getElementById('lista-libros');
   if (!container) return;
@@ -34,13 +26,17 @@ function generarHTMLLibro(libro) {
   let botonesHTML = '';
   let badgeHTML = '';
 
-  // Lógica según el ESTADO del libro
+  // Definir badge y botones según el estado
   if (libro.estado === 'publicado' || !libro.estado) {
     if (libro.amazon_url) {
       botonesHTML += `<a href="${libro.amazon_url}" target="_blank" class="btn-amazon"><i class="fab fa-amazon"></i> Obtener en Amazon</a>`;
     }
     if (libro.apk_url) {
-      botonesHTML += `<a href="${libro.apk_url}" target="_blank" class="btn btn--outline" style="margin-top: 1rem;"><i class="fas fa-mobile-alt"></i> Experiencia Interactiva</a>`;
+      botonesHTML += `
+        <button onclick="verificarLoginYAccederAPK('${libro.apk_url}')" class="btn btn--outline" style="margin-top: 1rem;">
+          <i class="fas fa-mobile-alt"></i> Experiencia Interactiva
+        </button>
+      `;
     }
   } 
   else if (libro.estado === 'proximamente') {
@@ -52,12 +48,12 @@ function generarHTMLLibro(libro) {
     botonesHTML = `<button class="btn btn--outline" disabled style="opacity: 0.6; cursor: not-allowed; margin-top: 1rem;">Actualmente agotado</button>`;
   }
 
-  // Imagen (con fallback si no hay URL)
+  // Definir imagen HTML (con fallback)
   const imagenHTML = libro.imagen_url 
     ? `<img src="${libro.imagen_url}" alt="${libro.titulo}" />` 
     : `<div style="width:100%; height:350px; background:var(--bg-tertiary); display:flex; align-items:center; justify-content:center; color:var(--gold-muted); border-radius:6px;"><i class="fas fa-book fa-3x"></i></div>`;
 
-  // Acordeón (solo si hay prólogo)
+  // Definir acordeón (solo si hay prólogo)
   const acordeonHTML = libro.prologo ? `
     <div class="acordeon">
       <button class="acordeon__trigger" onclick="toggleAcordeon(this)">
@@ -72,6 +68,7 @@ function generarHTMLLibro(libro) {
       </div>
     </div>` : '';
 
+  // Ahora sí, el return con todo definido
   return `
     <div class="libro-detalle">
       <div class="libro-detalle__container">
@@ -91,6 +88,55 @@ function generarHTMLLibro(libro) {
     </div>
   `;
 }
+
+// Función para verificar login antes de acceder a la APK
+window.verificarLoginYAccederAPK = async function(apkUrl) {
+  if (!window.sb) {
+    window.open(apkUrl, '_blank');
+    return;
+  }
+  
+  const { data: { session } } = await window.sb.auth.getSession();
+  
+  if (session) {
+    // Usuario logueado: abrir APK
+    window.open(apkUrl, '_blank');
+  } else {
+    // Usuario NO logueado: mostrar toast elegante
+    const toast = mostrarToast(
+      'Debes iniciar sesión para acceder a la experiencia interactiva.',
+      'warning',
+      'Acceso restringido',
+      0 // 0 = no se cierra automáticamente
+    );
+    
+    // Agregar botones personalizados al toast
+    const actionsContainer = toast.querySelector('#toastActions');
+    if (actionsContainer) {
+      actionsContainer.innerHTML = `
+        <button class="toast__btn toast__btn--primary" onclick="abrirModalDesdeToast()">
+          <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+        </button>
+        <button class="toast__btn toast__btn--secondary" onclick="cerrarToast(this.closest('.toast'))">
+          Ahora no
+        </button>
+      `;
+    }
+  }
+};
+
+// Función auxiliar para abrir el modal desde el toast
+window.abrirModalDesdeToast = function() {
+  // Cerrar todos los toasts primero
+  document.querySelectorAll('.toast').forEach(t => cerrarToast(t));
+  
+  // Abrir modal de login
+  const modal = document.getElementById('modalAuth');
+  if (modal) {
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+};
 
 // Función global para el acordeón (necesaria porque se genera dinámicamente)
 window.toggleAcordeon = function(btn) {
