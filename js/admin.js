@@ -35,16 +35,38 @@ function setButtonLoading(btn, isLoading, originalText) {
 // ==========================================
 // NAVEGACIÓN POR TABS
 // ==========================================
-window.cambiarTab = function(tabName) {
-  document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-  document.querySelectorAll('.admin-tab').forEach(btn => btn.classList.remove('active'));
+window.cambiarTab = function(tabName, event) {
+  // 1. Ocultar todos los tabs
+  document.querySelectorAll('.tab-content').forEach(tab => {
+    tab.classList.remove('active');
+  });
   
-  document.getElementById(`tab-${tabName}`).classList.add('active');
-  event.target.closest('.admin-tab').classList.add('active');
+  // 2. Desactivar todos los botones
+  document.querySelectorAll('.admin-tab').forEach(btn => {
+    btn.classList.remove('active');
+  });
   
+  // 3. Mostrar el tab seleccionado
+  const tabContent = document.getElementById(`tab-${tabName}`);
+  if (tabContent) {
+    tabContent.classList.add('active');
+  }
+  
+  // 4. Activar el botón correspondiente
+  if (event && event.target) {
+    // Si fue un clic real, usar el evento
+    const btn = event.target.closest('.admin-tab');
+    if (btn) btn.classList.add('active');
+  } else {
+    // Si fue llamado automáticamente (ej. al iniciar sesión), buscar el botón por su atributo
+    const btn = document.querySelector(`.admin-tab[onclick*="'${tabName}'"]`);
+    if (btn) btn.classList.add('active');
+  }
+  
+  // 5. Cargar datos según la pestaña
   if (tabName === 'libros') cargarLibros();
   if (tabName === 'articulos') cargarArticulos();
-  if (tabName === 'administradores') cargarAdministradores(); // ← Asegurar que cargue
+  if (tabName === 'administradores') cargarAdministradores();
 };
 
 // ==========================================
@@ -486,32 +508,50 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  sb.auth.onAuthStateChange(async (event, session) => {
-  if (session) {
-    const userEmail = session.user.email.toLowerCase();
-    
-    // Verificar si el correo está en la tabla de administradores
-    const { data: adminData, error } = await sb
-      .from('administradores')
-      .select('id')
-      .eq('email', userEmail)
-      .single();
-    
-    if (adminData && !error) {
-      // ✅ ES ADMINISTRADOR
-      console.log("✅ Acceso concedido a:", userEmail);
-      document.getElementById('loginScreen').style.display = 'none';
-      document.getElementById('dashboardScreen').style.display = 'block';
-      
-      // Cargar la primera pestaña por defecto
-      cambiarTab('libros');
-    } else {
-      // ⛔ NO ES ADMINISTRADOR
-      console.warn("⛔ Acceso denegado:", userEmail);
-      alert('⛔ ACCESO DENEGADO:\n\nTu cuenta no tiene permisos de administrador.');
-      await sb.auth.signOut();
+  // ==========================================
+// AUTENTICACIÓN ROBUSTA (Sin bucles infinitos)
+// ==========================================
+sb.auth.onAuthStateChange(async (event, session) => {
+  console.log("🔄 Evento de auth:", event);
+  // Solo actuar cuando el usuario acaba de iniciar sesión o la sesión se recupera
+  if (event === 'SIGNED_IN' || (event === 'TOKEN_REFRESHED' && session)) {
+    const userEmail = session.user.email.toLowerCase().trim();
+    console.log("🔍 Verificando permisos para:", userEmail);
+    try {
+      // Usamos .maybeSingle() para que NO lance error si el correo no existe
+      const { data: adminData, error } = await sb
+        .from('administradores')
+        .select('id, email')
+        .eq('email', userEmail)
+        .maybeSingle();
+      if (adminData && !error) {
+        // ✅ ES ADMINISTRADOR
+        console.log("✅ Acceso concedido. ID:", adminData.id);
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('dashboardScreen').style.display = 'block';
+        
+        // Cargar la primera pestaña
+        cambiarTab('libros');
+      } else {
+        // ⛔ NO ES ADMINISTRADOR
+        console.warn("⛔ Acceso denegado. El correo no está en la tabla de administradores.");
+        
+        // Mostrar alerta y cerrar sesión de forma segura
+        alert('⛔ ACCESO DENEGADO:\n\nTu cuenta de Google no está registrada como administrador en este sistema.');
+        
+        await sb.auth.signOut();
+        document.getElementById('loginScreen').style.display = 'flex';
+        document.getElementById('dashboardScreen').style.display = 'none';
+      }
+    } catch (err) {
+      console.error("❌ Error crítico al verificar admin:", err);
+      alert('Ocurrió un error de conexión al verificar tus permisos. Intenta de nuevo.');
     }
-  } else {
+  } 
+  
+  // Si el usuario cierra sesión manualmente o la sesión expira
+  else if (event === 'SIGNED_OUT') {
+    console.log("👋 Sesión cerrada");
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('dashboardScreen').style.display = 'none';
   }
