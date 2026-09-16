@@ -277,11 +277,14 @@ function cancelarEdicion() {
 // ==========================================
 // GESTIÓN DE ARTÍCULOS
 // ==========================================
+// ==========================================
+// GESTIÓN DE ARTÍCULOS (Corregida)
+// ==========================================
 async function cargarArticulos() {
   const { data, error } = await sb
     .from('articulos')
     .select('*')
-    order('orden', { ascending: true })
+    .order('orden', { ascending: true }) // <-- AQUÍ FALTABA EL PUNTO
     .order('creado_en', { ascending: false });
   
   const container = document.getElementById('listaArticulos');
