@@ -36,26 +36,15 @@ function setButtonLoading(btn, isLoading, originalText) {
 // NAVEGACIÓN POR TABS
 // ==========================================
 window.cambiarTab = function(tabName) {
-  // Ocultar todos los tabs
-  document.querySelectorAll('.tab-content').forEach(tab => {
-    tab.classList.remove('active');
-  });
+  document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+  document.querySelectorAll('.admin-tab').forEach(btn => btn.classList.remove('active'));
   
-  // Desactivar todos los botones
-  document.querySelectorAll('.admin-tab').forEach(btn => {
-    btn.classList.remove('active');
-  });
-  
-  // Mostrar el tab seleccionado
   document.getElementById(`tab-${tabName}`).classList.add('active');
-  
-  // Activar el botón correspondiente
   event.target.closest('.admin-tab').classList.add('active');
   
-  // Cargar datos si es necesario
   if (tabName === 'libros') cargarLibros();
   if (tabName === 'articulos') cargarArticulos();
-  if (tabName === 'administradores') cargarAdministradores();
+  if (tabName === 'administradores') cargarAdministradores(); // ← Asegurar que cargue
 };
 
 // ==========================================
@@ -355,50 +344,101 @@ function cancelarEdicionArticulo() {
 // ==========================================
 // GESTIÓN DE ADMINISTRADORES
 // ==========================================
+// ==========================================
+// GESTIÓN DE ADMINISTRADORES (Dinámica)
+// ==========================================
 async function cargarAdministradores() {
   const container = document.getElementById('listaAdministradores');
   
-  // Obtener lista de administradores del código
-  const adminEmails = [
-    'rinchosilva5@gmail.com',
-    'eltonaliolivares@gmail.com'
-  ];
+  const { data, error } = await sb
+    .from('administradores')
+    .select('*')
+    .order('creado_en', { ascending: false });
   
-  if (adminEmails.length === 0) {
+  if (error) {
+    container.innerHTML = `<p style="color: #ff6b6b; text-align: center;"><i class="fas fa-exclamation-triangle"></i> Error: ${error.message}</p>`;
+    return;
+  }
+  
+  if (!data || data.length === 0) {
     container.innerHTML = `<p style="color: var(--text-secondary); text-align: center; padding: 2rem;"><i class="fas fa-inbox"></i> No hay administradores registrados.</p>`;
     return;
   }
 
-  container.innerHTML = adminEmails.map(email => `
+  container.innerHTML = data.map(admin => `
     <div class="admin-item-admin">
       <div class="admin-email">
         <i class="fas fa-user-shield"></i>
-        <span>${email}</span>
+        <div>
+          <div style="color: var(--text-primary); font-size: 0.95rem;">${admin.email}</div>
+          ${admin.nombre ? `<div style="color: var(--text-secondary); font-size: 0.8rem;">${admin.nombre}</div>` : ''}
+        </div>
       </div>
-      <span class="admin-badge"><i class="fas fa-check"></i> Activo</span>
+      <div style="display: flex; gap: 0.5rem; align-items: center;">
+        <span class="admin-badge"><i class="fas fa-check"></i> Activo</span>
+        <button onclick="eliminarAdministrador(${admin.id}, '${admin.email}')" class="btn-icon delete" title="Eliminar administrador">
+          <i class="fas fa-trash-alt"></i>
+        </button>
+      </div>
     </div>
   `).join('');
 }
 
 window.agregarAdministrador = async function() {
   const emailInput = document.getElementById('nuevoAdminEmail');
-  const email = emailInput.value.trim();
+  const nombreInput = document.getElementById('nuevoAdminNombre');
+  
+  const email = emailInput.value.trim().toLowerCase();
+  const nombre = nombreInput.value.trim();
   
   if (!email) {
     alert('Por favor ingresa un correo electrónico');
     return;
   }
   
-  if (!email.includes('@')) {
+  if (!email.includes('@') || !email.includes('.')) {
     alert('Por favor ingresa un correo electrónico válido');
     return;
   }
   
-  // NOTA: Para agregar un admin realmente, necesitas editar el archivo admin.js
-  // y agregar el correo a la lista ADMIN_EMAILS
-  alert(`Para agregar "${email}" como administrador:\n\n1. Abre el archivo js/admin.js\n2. Busca la constante ADMIN_EMAILS\n3. Agrega "${email}" a la lista\n4. Guarda y sube los cambios a Vercel`);
+  const { error } = await sb
+    .from('administradores')
+    .insert([{ email, nombre: nombre || null }]);
   
+  if (error) {
+    if (error.code === '23505') {
+      alert('⚠️ Este correo ya está registrado como administrador');
+    } else {
+      alert('Error al agregar: ' + error.message);
+    }
+    return;
+  }
+  
+  alert(`✅ ${email} ha sido agregado como administrador`);
   emailInput.value = '';
+  nombreInput.value = '';
+  cargarAdministradores();
+};
+
+window.eliminarAdministrador = async function(id, email) {
+  // Prevenir que el admin se elimine a sí mismo
+  const { data: { session } } = await sb.auth.getSession();
+  if (session && session.user.email.toLowerCase() === email.toLowerCase()) {
+    alert('⚠️ No puedes eliminar tu propia cuenta de administrador');
+    return;
+  }
+  
+  if (!confirm(`¿Estás seguro de eliminar a "${email}" como administrador?\n\nEsta persona ya no podrá acceder al panel.`)) return;
+  
+  const { error } = await sb.from('administradores').delete().eq('id', id);
+  
+  if (error) {
+    alert('Error al eliminar: ' + error.message);
+    return;
+  }
+  
+  alert(`✅ ${email} ha sido eliminado de la lista de administradores`);
+  cargarAdministradores();
 };
 
 // ==========================================
@@ -446,16 +486,36 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  sb.auth.onAuthStateChange((event, session) => {
-    if (session) {
+  sb.auth.onAuthStateChange(async (event, session) => {
+  if (session) {
+    const userEmail = session.user.email.toLowerCase();
+    
+    // Verificar si el correo está en la tabla de administradores
+    const { data: adminData, error } = await sb
+      .from('administradores')
+      .select('id')
+      .eq('email', userEmail)
+      .single();
+    
+    if (adminData && !error) {
+      // ✅ ES ADMINISTRADOR
+      console.log("✅ Acceso concedido a:", userEmail);
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('dashboardScreen').style.display = 'block';
-      cargarLibros();
+      
+      // Cargar la primera pestaña por defecto
+      cambiarTab('libros');
     } else {
-      document.getElementById('loginScreen').style.display = 'flex';
-      document.getElementById('dashboardScreen').style.display = 'none';
+      // ⛔ NO ES ADMINISTRADOR
+      console.warn("⛔ Acceso denegado:", userEmail);
+      alert('⛔ ACCESO DENEGADO:\n\nTu cuenta no tiene permisos de administrador.');
+      await sb.auth.signOut();
     }
-  });
+  } else {
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('dashboardScreen').style.display = 'none';
+  }
+});
 
   // 3. Setup de imagen
   setupImagenPreview();

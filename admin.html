@@ -169,7 +169,6 @@
         </div>
       </div>
 
-      <!-- SECCIÓN ADMINISTRADORES -->
       <div id="tab-administradores" class="tab-content">
         <h2 class="page__title page__title--left" style="font-size: 1.5rem; margin-bottom: 1.5rem;">
           <i class="fas fa-users" style="margin-right: 0.5rem;"></i> Administradores
@@ -180,17 +179,18 @@
             <i class="fas fa-user-plus"></i> Agregar Nuevo Administrador
           </h3>
           <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem;">
-            Agrega el correo de Google de la persona que deseas autorizar como administrador.
+            Agrega el correo de Google de la persona que deseas autorizar.
           </p>
           
           <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
             <input type="email" id="nuevoAdminEmail" class="admin-input" placeholder="correo@ejemplo.com" style="flex: 1; min-width: 250px;" />
+            <input type="text" id="nuevoAdminNombre" class="admin-input" placeholder="Nombre (opcional)" style="flex: 1; min-width: 200px;" />
             <button onclick="agregarAdministrador()" class="btn btn--solid">
               <i class="fas fa-plus"></i> Agregar
             </button>
           </div>
         </div>
-
+      
         <div id="listaAdministradores" style="display: grid; gap: 1rem;">
           <p style="color: var(--text-secondary); text-align: center; padding: 2rem;">
             <i class="fas fa-spinner fa-spin"></i> Cargando administradores...

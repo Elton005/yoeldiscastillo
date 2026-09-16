@@ -539,3 +539,41 @@
     padding: 0.6rem 1rem;
   }
 }
+
+.admin-item-admin {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.2rem;
+  background: rgba(42, 31, 26, 0.4);
+  border: 1px solid rgba(212, 184, 150, 0.15);
+  border-radius: 6px;
+  transition: var(--transition);
+}
+
+.admin-item-admin:hover {
+  border-color: rgba(212, 184, 150, 0.4);
+  background: rgba(42, 31, 26, 0.6);
+}
+
+.admin-email {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+
+.admin-email i {
+  color: var(--gold-primary);
+  font-size: 1.2rem;
+}
+
+.admin-badge {
+  background: rgba(74, 222, 128, 0.15);
+  color: #4ade80;
+  padding: 0.3rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
