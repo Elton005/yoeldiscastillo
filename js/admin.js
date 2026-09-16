@@ -36,34 +36,20 @@ function setButtonLoading(btn, isLoading, originalText) {
 // NAVEGACIÓN POR TABS
 // ==========================================
 window.cambiarTab = function(tabName, event) {
-  // 1. Ocultar todos los tabs
-  document.querySelectorAll('.tab-content').forEach(tab => {
-    tab.classList.remove('active');
-  });
+  document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+  document.querySelectorAll('.admin-tab').forEach(btn => btn.classList.remove('active'));
   
-  // 2. Desactivar todos los botones
-  document.querySelectorAll('.admin-tab').forEach(btn => {
-    btn.classList.remove('active');
-  });
-  
-  // 3. Mostrar el tab seleccionado
   const tabContent = document.getElementById(`tab-${tabName}`);
-  if (tabContent) {
-    tabContent.classList.add('active');
-  }
+  if (tabContent) tabContent.classList.add('active');
   
-  // 4. Activar el botón correspondiente
   if (event && event.target) {
-    // Si fue un clic real, usar el evento
     const btn = event.target.closest('.admin-tab');
     if (btn) btn.classList.add('active');
   } else {
-    // Si fue llamado automáticamente (ej. al iniciar sesión), buscar el botón por su atributo
     const btn = document.querySelector(`.admin-tab[onclick*="'${tabName}'"]`);
     if (btn) btn.classList.add('active');
   }
   
-  // 5. Cargar datos según la pestaña
   if (tabName === 'libros') cargarLibros();
   if (tabName === 'articulos') cargarArticulos();
   if (tabName === 'administradores') cargarAdministradores();
@@ -133,65 +119,41 @@ function setupImagenPreview() {
 // ORDENAMIENTO (Sistema Robusto)
 // ==========================================
 window.cambiarOrden = async function(tabla, id, direccion) {
-  // 1. Obtener todos los items ordenados
-  const { data: items, error } = await sb
-    .from(tabla)
-    .select('id, orden')
-    .order('orden', { ascending: true });
+  const { data: items, error } = await sb.from(tabla).select('id, orden').order('orden', { ascending: true });
     
   if (error) {
     console.error('Error al obtener items:', error);
     alert('Error al cargar los datos');
     return;
   }
-
   if (!items || items.length === 0) return;
 
-  // 2. Encontrar el índice del item actual
   const currentIndex = items.findIndex(item => item.id === id);
   if (currentIndex === -1) return;
 
-  // 3. Calcular nuevo índice
   const newIndex = direccion === 'up' ? currentIndex - 1 : currentIndex + 1;
   if (newIndex < 0 || newIndex >= items.length) return;
 
-  // 4. Mover el item en el array (reordenar en memoria)
   const [movedItem] = items.splice(currentIndex, 1);
   items.splice(newIndex, 0, movedItem);
 
-  // 5. Recalcular TODOS los órdenes (1, 2, 3, 4...)
-  const updates = items.map((item, index) => ({
-    id: item.id,
-    orden: index + 1
-  }));
-
-  // 6. Actualizar en la base de datos (en paralelo)
-  const promises = updates.map(update => 
-    sb.from(tabla).update({ orden: update.orden }).eq('id', update.id)
-  );
+  const updates = items.map((item, index) => ({ id: item.id, orden: index + 1 }));
+  const promises = updates.map(update => sb.from(tabla).update({ orden: update.orden }).eq('id', update.id));
 
   await Promise.all(promises);
   console.log(`✅ Orden de ${tabla} actualizado correctamente`);
 
-  // 7. Recargar la lista
-  if (tabla === 'libros') {
-    await cargarLibros();
-  } else {
-    await cargarArticulos();
-  }
+  if (tabla === 'libros') await cargarLibros();
+  else await cargarArticulos();
 };
 
 // ==========================================
 // GESTIÓN DE LIBROS
 // ==========================================
 async function cargarLibros() {
-  const { data, error } = await sb
-    .from('libros')
-    .select('*')
-    .order('orden', { ascending: true })
-    .order('creado_en', { ascending: false });
-  
+  const { data, error } = await sb.from('libros').select('*').order('orden', { ascending: true }).order('creado_en', { ascending: false });
   const container = document.getElementById('listaLibros');
+  
   if (error) {
     container.innerHTML = `<p style="color: #ff6b6b; text-align: center;"><i class="fas fa-exclamation-triangle"></i> Error: ${error.message}</p>`;
     return;
@@ -205,12 +167,8 @@ async function cargarLibros() {
     <div class="admin-item">
       <div style="flex: 1; display: flex; gap: 1rem; align-items: center;">
         <div style="display: flex; flex-direction: column; gap: 0.2rem;">
-          <button onclick="cambiarOrden('libros', ${libro.id}, 'up')" class="btn-orden" ${index === 0 ? 'disabled' : ''}>
-            <i class="fas fa-chevron-up"></i>
-          </button>
-          <button onclick="cambiarOrden('libros', ${libro.id}, 'down')" class="btn-orden" ${index === data.length - 1 ? 'disabled' : ''}>
-            <i class="fas fa-chevron-down"></i>
-          </button>
+          <button onclick="cambiarOrden('libros', ${libro.id}, 'up')" class="btn-orden" ${index === 0 ? 'disabled' : ''}><i class="fas fa-chevron-up"></i></button>
+          <button onclick="cambiarOrden('libros', ${libro.id}, 'down')" class="btn-orden" ${index === data.length - 1 ? 'disabled' : ''}><i class="fas fa-chevron-down"></i></button>
         </div>
         ${libro.imagen_url ? `<img src="${libro.imagen_url}" alt="${libro.titulo}" style="width: 50px; height: 75px; object-fit: cover; border-radius: 4px;" />` : ''}
         <div>
@@ -230,9 +188,7 @@ async function cargarLibros() {
 }
 
 async function guardarLibro(libroData, id = null) {
-  return id 
-    ? (await sb.from('libros').update(libroData).eq('id', id)).error
-    : (await sb.from('libros').insert([libroData])).error;
+  return id ? (await sb.from('libros').update(libroData).eq('id', id)).error : (await sb.from('libros').insert([libroData])).error;
 }
 
 async function eliminarLibro(id) {
@@ -277,14 +233,11 @@ function cancelarEdicion() {
 // ==========================================
 // GESTIÓN DE ARTÍCULOS
 // ==========================================
-// ==========================================
-// GESTIÓN DE ARTÍCULOS (Corregida)
-// ==========================================
 async function cargarArticulos() {
   const { data, error } = await sb
     .from('articulos')
     .select('*')
-    .order('orden', { ascending: true }) // <-- AQUÍ FALTABA EL PUNTO
+    .order('orden', { ascending: true }) // <-- PUNTO CORREGIDO
     .order('creado_en', { ascending: false });
   
   const container = document.getElementById('listaArticulos');
@@ -301,12 +254,8 @@ async function cargarArticulos() {
     <div class="admin-item">
       <div style="flex: 1; display: flex; gap: 1rem; align-items: center;">
         <div style="display: flex; flex-direction: column; gap: 0.2rem;">
-          <button onclick="cambiarOrden('articulos', ${art.id}, 'up')" class="btn-orden" ${index === 0 ? 'disabled' : ''}>
-            <i class="fas fa-chevron-up"></i>
-          </button>
-          <button onclick="cambiarOrden('articulos', ${art.id}, 'down')" class="btn-orden" ${index === data.length - 1 ? 'disabled' : ''}>
-            <i class="fas fa-chevron-down"></i>
-          </button>
+          <button onclick="cambiarOrden('articulos', ${art.id}, 'up')" class="btn-orden" ${index === 0 ? 'disabled' : ''}><i class="fas fa-chevron-up"></i></button>
+          <button onclick="cambiarOrden('articulos', ${art.id}, 'down')" class="btn-orden" ${index === data.length - 1 ? 'disabled' : ''}><i class="fas fa-chevron-down"></i></button>
         </div>
         <div>
           <h4 style="color: var(--gold-primary); font-family: var(--font-heading); font-size: 1.1rem;">${art.titulo}</h4>
@@ -324,9 +273,7 @@ async function cargarArticulos() {
 }
 
 async function guardarArticulo(articuloData, id = null) {
-  return id 
-    ? (await sb.from('articulos').update(articuloData).eq('id', id)).error
-    : (await sb.from('articulos').insert([articuloData])).error;
+  return id ? (await sb.from('articulos').update(articuloData).eq('id', id)).error : (await sb.from('articulos').insert([articuloData])).error;
 }
 
 async function eliminarArticulo(id) {
@@ -369,22 +316,14 @@ function cancelarEdicionArticulo() {
 // ==========================================
 // GESTIÓN DE ADMINISTRADORES
 // ==========================================
-// ==========================================
-// GESTIÓN DE ADMINISTRADORES (Dinámica)
-// ==========================================
 async function cargarAdministradores() {
   const container = document.getElementById('listaAdministradores');
-  
-  const { data, error } = await sb
-    .from('administradores')
-    .select('*')
-    .order('creado_en', { ascending: false });
+  const { data, error } = await sb.from('administradores').select('*').order('creado_en', { ascending: false });
   
   if (error) {
     container.innerHTML = `<p style="color: #ff6b6b; text-align: center;"><i class="fas fa-exclamation-triangle"></i> Error: ${error.message}</p>`;
     return;
   }
-  
   if (!data || data.length === 0) {
     container.innerHTML = `<p style="color: var(--text-secondary); text-align: center; padding: 2rem;"><i class="fas fa-inbox"></i> No hay administradores registrados.</p>`;
     return;
@@ -401,9 +340,7 @@ async function cargarAdministradores() {
       </div>
       <div style="display: flex; gap: 0.5rem; align-items: center;">
         <span class="admin-badge"><i class="fas fa-check"></i> Activo</span>
-        <button onclick="eliminarAdministrador(${admin.id}, '${admin.email}')" class="btn-icon delete" title="Eliminar administrador">
-          <i class="fas fa-trash-alt"></i>
-        </button>
+        <button onclick="eliminarAdministrador(${admin.id}, '${admin.email}')" class="btn-icon delete" title="Eliminar administrador"><i class="fas fa-trash-alt"></i></button>
       </div>
     </div>
   `).join('');
@@ -412,30 +349,18 @@ async function cargarAdministradores() {
 window.agregarAdministrador = async function() {
   const emailInput = document.getElementById('nuevoAdminEmail');
   const nombreInput = document.getElementById('nuevoAdminNombre');
-  
   const email = emailInput.value.trim().toLowerCase();
   const nombre = nombreInput.value.trim();
   
-  if (!email) {
-    alert('Por favor ingresa un correo electrónico');
-    return;
-  }
-  
-  if (!email.includes('@') || !email.includes('.')) {
+  if (!email || !email.includes('@') || !email.includes('.')) {
     alert('Por favor ingresa un correo electrónico válido');
     return;
   }
   
-  const { error } = await sb
-    .from('administradores')
-    .insert([{ email, nombre: nombre || null }]);
-  
+  const { error } = await sb.from('administradores').insert([{ email, nombre: nombre || null }]);
   if (error) {
-    if (error.code === '23505') {
-      alert('⚠️ Este correo ya está registrado como administrador');
-    } else {
-      alert('Error al agregar: ' + error.message);
-    }
+    if (error.code === '23505') alert('⚠️ Este correo ya está registrado como administrador');
+    else alert('Error al agregar: ' + error.message);
     return;
   }
   
@@ -446,25 +371,72 @@ window.agregarAdministrador = async function() {
 };
 
 window.eliminarAdministrador = async function(id, email) {
-  // Prevenir que el admin se elimine a sí mismo
   const { data: { session } } = await sb.auth.getSession();
   if (session && session.user.email.toLowerCase() === email.toLowerCase()) {
     alert('⚠️ No puedes eliminar tu propia cuenta de administrador');
     return;
   }
-  
-  if (!confirm(`¿Estás seguro de eliminar a "${email}" como administrador?\n\nEsta persona ya no podrá acceder al panel.`)) return;
+  if (!confirm(`¿Estás seguro de eliminar a "${email}" como administrador?`)) return;
   
   const { error } = await sb.from('administradores').delete().eq('id', id);
-  
   if (error) {
     alert('Error al eliminar: ' + error.message);
     return;
   }
-  
   alert(`✅ ${email} ha sido eliminado de la lista de administradores`);
   cargarAdministradores();
 };
+
+// ==========================================
+// AUTENTICACIÓN ROBUSTA (Anti-Bucle Infinito)
+// ==========================================
+let isVerifying = false;
+
+async function verificarAcceso() {
+  if (isVerifying) return; // Evita ejecuciones simultáneas
+  isVerifying = true;
+
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    
+    if (session) {
+      const userEmail = session.user.email.toLowerCase().trim();
+      console.log("🔍 Verificando permisos para:", userEmail);
+
+      const { data: adminData, error } = await sb
+        .from('administradores')
+        .select('id, email')
+        .eq('email', userEmail)
+        .maybeSingle();
+
+      if (adminData && !error) {
+        console.log("✅ Acceso concedido. ID:", adminData.id);
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('dashboardScreen').style.display = 'block';
+        
+        if (!window.adminLoaded) {
+          cambiarTab('libros');
+          window.adminLoaded = true;
+        }
+      } else {
+        console.warn("⛔ Acceso denegado para:", userEmail);
+        document.getElementById('loginScreen').style.display = 'flex';
+        document.getElementById('dashboardScreen').style.display = 'none';
+        await sb.auth.signOut();
+        alert('⛔ ACCESO DENEGADO:\n\nTu cuenta de Google no está registrada como administrador.\nPor favor, usa una cuenta autorizada.');
+      }
+    } else {
+      document.getElementById('loginScreen').style.display = 'flex';
+      document.getElementById('dashboardScreen').style.display = 'none';
+    }
+  } catch (err) {
+    console.error("❌ Error al verificar acceso:", err);
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('dashboardScreen').style.display = 'none';
+  } finally {
+    isVerifying = false;
+  }
+}
 
 // ==========================================
 // INICIALIZACIÓN
@@ -485,23 +457,27 @@ document.addEventListener('DOMContentLoaded', () => {
     branding: false
   });
 
-  // 2. Autenticación
+  // 2. Autenticación: Botón de Login (Redirección limpia)
   const btnLogin = document.getElementById('btnLoginGoogle');
   if (btnLogin) {
     btnLogin.addEventListener('click', async (e) => {
       e.preventDefault();
       try {
+        // URL exacta de admin.html para evitar que Google lo mande a index.html
+        const redirectUrl = window.location.origin + window.location.pathname;
+        
         const { error } = await sb.auth.signInWithOAuth({
           provider: 'google',
-          options: { redirectTo: window.location.href }
+          options: { redirectTo: redirectUrl }
         });
-        if (error) alert('Error: ' + error.message);
+        if (error) alert('Error al iniciar sesión: ' + error.message);
       } catch (err) {
         alert('Error inesperado: ' + err.message);
       }
     });
   }
 
+  // Botón de Logout
   const btnLogout = document.getElementById('btnLogout');
   if (btnLogout) {
     btnLogout.addEventListener('click', async (e) => {
@@ -511,59 +487,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ==========================================
-// AUTENTICACIÓN ROBUSTA (Sin bucles infinitos)
-// ==========================================
-sb.auth.onAuthStateChange(async (event, session) => {
-  console.log("🔄 Evento de auth:", event);
-  // Solo actuar cuando el usuario acaba de iniciar sesión o la sesión se recupera
-  if (event === 'SIGNED_IN' || (event === 'TOKEN_REFRESHED' && session)) {
-    const userEmail = session.user.email.toLowerCase().trim();
-    console.log("🔍 Verificando permisos para:", userEmail);
-    try {
-      // Usamos .maybeSingle() para que NO lance error si el correo no existe
-      const { data: adminData, error } = await sb
-        .from('administradores')
-        .select('id, email')
-        .eq('email', userEmail)
-        .maybeSingle();
-      if (adminData && !error) {
-        // ✅ ES ADMINISTRADOR
-        console.log("✅ Acceso concedido. ID:", adminData.id);
-        document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('dashboardScreen').style.display = 'block';
-        
-        // Cargar la primera pestaña
-        cambiarTab('libros');
-      } else {
-        // ⛔ NO ES ADMINISTRADOR
-        console.warn("⛔ Acceso denegado. El correo no está en la tabla de administradores.");
-        
-        // Mostrar alerta y cerrar sesión de forma segura
-        alert('⛔ ACCESO DENEGADO:\n\nTu cuenta de Google no está registrada como administrador en este sistema.');
-        
-        await sb.auth.signOut();
-        document.getElementById('loginScreen').style.display = 'flex';
-        document.getElementById('dashboardScreen').style.display = 'none';
-      }
-    } catch (err) {
-      console.error("❌ Error crítico al verificar admin:", err);
-      alert('Ocurrió un error de conexión al verificar tus permisos. Intenta de nuevo.');
+  // Escuchar cambios de estado de Supabase
+  sb.auth.onAuthStateChange((event, session) => {
+    console.log("🔄 Evento de auth:", event);
+    if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED') {
+      verificarAcceso();
+    } else if (event === 'SIGNED_OUT') {
+      document.getElementById('loginScreen').style.display = 'flex';
+      document.getElementById('dashboardScreen').style.display = 'none';
     }
-  } 
-  
-  // Si el usuario cierra sesión manualmente o la sesión expira
-  else if (event === 'SIGNED_OUT') {
-    console.log("👋 Sesión cerrada");
-    document.getElementById('loginScreen').style.display = 'flex';
-    document.getElementById('dashboardScreen').style.display = 'none';
-  }
-});
+  });
 
   // 3. Setup de imagen
   setupImagenPreview();
 
-  // 4. Listeners
+  // 4. Listeners de formularios
   document.getElementById('btnCancelarEdicion')?.addEventListener('click', cancelarEdicion);
   document.getElementById('btnCancelarEdicionArt')?.addEventListener('click', cancelarEdicionArticulo);
 
