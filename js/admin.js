@@ -7,9 +7,8 @@ const SUPABASE_URL = 'https://jjbztkljgsdwrqylspeg.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpqYnp0a2xqZ3Nkd3JxeWxzcGVnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY2NDE4MjgsImV4cCI6MjEwMjIxNzgyOH0.lDYEuyrbVDRoMyQwfj4nQk-gve84RhZiFnyRAYhGfD4';
 const STORAGE_BUCKET = 'libros-imagenes';
 
-// Verificar que Supabase cargó
 if (!window.supabase) {
-  console.error("❌ Error: La librería de Supabase no se cargó. Revisa tu conexión a internet o el orden de los scripts.");
+  console.error("❌ Error: La librería de Supabase no se cargó.");
 }
 
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -97,12 +96,48 @@ function setupImagenPreview() {
 }
 
 // ==========================================
+// ORDENAMIENTO (Función Genérica)
+// ==========================================
+window.cambiarOrden = async function(tabla, id, direccion) {
+  const { data: items, error } = await sb
+    .from(tabla)
+    .select('id, orden')
+    .order('orden', { ascending: true, nullsFirst: true })
+    .order('creado_en', { ascending: false });
+    
+  if (error) return console.error(error);
+
+  const currentIndex = items.findIndex(item => item.id === id);
+  if (currentIndex === -1) return;
+
+  let newIndex = direccion === 'up' ? currentIndex - 1 : currentIndex + 1;
+  if (newIndex < 0 || newIndex >= items.length) return;
+
+  const currentItem = items[currentIndex];
+  const swapItem = items[newIndex];
+
+  // Normalizar valores null a su índice para el intercambio
+  const orden1 = currentItem.orden !== null ? currentItem.orden : currentIndex;
+  const orden2 = swapItem.orden !== null ? swapItem.orden : newIndex;
+
+  await sb.from(tabla).update({ orden: orden2 }).eq('id', currentItem.id);
+  await sb.from(tabla).update({ orden: orden1 }).eq('id', swapItem.id);
+
+  if (tabla === 'libros') cargarLibros();
+  else cargarArticulos();
+};
+
+// ==========================================
 // GESTIÓN DE LIBROS
 // ==========================================
 async function cargarLibros() {
-  const { data, error } = await sb.from('libros').select('*').order('creado_en', { ascending: false });
-  const container = document.getElementById('listaLibros');
+  const { data, error } = await sb
+    .from('libros')
+    .select('*')
+    .order('orden', { ascending: true, nullsFirst: true })
+    .order('creado_en', { ascending: false });
   
+  const container = document.getElementById('listaLibros');
   if (error) {
     container.innerHTML = `<p style="color: #ff6b6b; text-align: center;"><i class="fas fa-exclamation-triangle"></i> Error: ${error.message}</p>`;
     return;
@@ -112,9 +147,17 @@ async function cargarLibros() {
     return;
   }
 
-  container.innerHTML = data.map(libro => `
+  container.innerHTML = data.map((libro, index) => `
     <div class="admin-item">
       <div style="flex: 1; display: flex; gap: 1rem; align-items: center;">
+        <div style="display: flex; flex-direction: column; gap: 0.2rem;">
+          <button onclick="cambiarOrden('libros', ${libro.id}, 'up')" class="btn-orden" ${index === 0 ? 'disabled' : ''}>
+            <i class="fas fa-chevron-up"></i>
+          </button>
+          <button onclick="cambiarOrden('libros', ${libro.id}, 'down')" class="btn-orden" ${index === data.length - 1 ? 'disabled' : ''}>
+            <i class="fas fa-chevron-down"></i>
+          </button>
+        </div>
         ${libro.imagen_url ? `<img src="${libro.imagen_url}" alt="${libro.titulo}" style="width: 50px; height: 75px; object-fit: cover; border-radius: 4px;" />` : ''}
         <div>
           <h4 style="color: var(--gold-primary); font-family: var(--font-heading); font-size: 1.1rem;">${libro.titulo}</h4>
@@ -181,9 +224,13 @@ function cancelarEdicion() {
 // GESTIÓN DE ARTÍCULOS
 // ==========================================
 async function cargarArticulos() {
-  const { data, error } = await sb.from('articulos').select('*').order('creado_en', { ascending: false });
-  const container = document.getElementById('listaArticulos');
+  const { data, error } = await sb
+    .from('articulos')
+    .select('*')
+    .order('orden', { ascending: true, nullsFirst: true })
+    .order('creado_en', { ascending: false });
   
+  const container = document.getElementById('listaArticulos');
   if (error) {
     container.innerHTML = `<p style="color: #ff6b6b; text-align: center;"><i class="fas fa-exclamation-triangle"></i> Error: ${error.message}</p>`;
     return;
@@ -193,13 +240,23 @@ async function cargarArticulos() {
     return;
   }
 
-  container.innerHTML = data.map(art => `
+  container.innerHTML = data.map((art, index) => `
     <div class="admin-item">
-      <div style="flex: 1;">
-        <h4 style="color: var(--gold-primary); font-family: var(--font-heading); font-size: 1.1rem;">${art.titulo}</h4>
-        <span class="status-badge ${art.publicado ? 'status-published' : 'status-draft'}">
-          <i class="fas fa-${art.publicado ? 'check-circle' : 'clock'}"></i> ${art.publicado ? 'Publicado' : 'Borrador'}
-        </span>
+      <div style="flex: 1; display: flex; gap: 1rem; align-items: center;">
+        <div style="display: flex; flex-direction: column; gap: 0.2rem;">
+          <button onclick="cambiarOrden('articulos', ${art.id}, 'up')" class="btn-orden" ${index === 0 ? 'disabled' : ''}>
+            <i class="fas fa-chevron-up"></i>
+          </button>
+          <button onclick="cambiarOrden('articulos', ${art.id}, 'down')" class="btn-orden" ${index === data.length - 1 ? 'disabled' : ''}>
+            <i class="fas fa-chevron-down"></i>
+          </button>
+        </div>
+        <div>
+          <h4 style="color: var(--gold-primary); font-family: var(--font-heading); font-size: 1.1rem;">${art.titulo}</h4>
+          <span class="status-badge ${art.publicado ? 'status-published' : 'status-draft'}">
+            <i class="fas fa-${art.publicado ? 'check-circle' : 'clock'}"></i> ${art.publicado ? 'Publicado' : 'Borrador'}
+          </span>
+        </div>
       </div>
       <div class="admin-actions">
         <button onclick="editarArticulo(${art.id})" class="btn-icon" title="Editar"><i class="fas fa-edit"></i></button>
@@ -253,7 +310,7 @@ function cancelarEdicionArticulo() {
 }
 
 // ==========================================
-// INICIALIZACIÓN (DOMContentLoaded)
+// INICIALIZACIÓN
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
   console.log("✅ DOM cargado. Inicializando componentes...");
@@ -271,23 +328,18 @@ document.addEventListener('DOMContentLoaded', () => {
     branding: false
   });
 
-  // 2. Manejo de Autenticación (LOGIN Y LOGOUT)
+  // 2. Manejo de Autenticación
   const btnLogin = document.getElementById('btnLoginGoogle');
   if (btnLogin) {
     btnLogin.addEventListener('click', async (e) => {
       e.preventDefault();
-      console.log("🔘 Botón de login clickeado");
       try {
         const { error } = await sb.auth.signInWithOAuth({
           provider: 'google',
           options: { redirectTo: window.location.href }
         });
-        if (error) {
-          console.error('❌ Error de Supabase:', error);
-          alert('Error al iniciar sesión: ' + error.message);
-        }
+        if (error) alert('Error al iniciar sesión: ' + error.message);
       } catch (err) {
-        console.error('❌ Excepción en login:', err);
         alert('Ocurrió un error inesperado: ' + err.message);
       }
     });
@@ -297,33 +349,28 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnLogout) {
     btnLogout.addEventListener('click', async (e) => {
       e.preventDefault();
-      console.log("🔘 Botón de salir clickeado");
       await sb.auth.signOut();
       window.location.reload();
     });
   }
 
-  // Escuchar cambios de sesión
   sb.auth.onAuthStateChange((event, session) => {
-    console.log("🔄 Estado de auth cambiado:", event);
     if (session) {
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('dashboardScreen').style.display = 'block';
-      document.getElementById('userInfo').style.display = 'flex';
       document.getElementById('userName').textContent = session.user.email;
       cargarLibros();
       cargarArticulos();
     } else {
       document.getElementById('loginScreen').style.display = 'flex';
       document.getElementById('dashboardScreen').style.display = 'none';
-      document.getElementById('userInfo').style.display = 'none';
     }
   });
 
   // 3. Setup de imagen
   setupImagenPreview();
 
-  // 4. Listeners de formularios y botones de cancelar
+  // 4. Listeners de formularios
   document.getElementById('btnCancelarEdicion')?.addEventListener('click', cancelarEdicion);
   document.getElementById('btnCancelarEdicionArt')?.addEventListener('click', cancelarEdicionArticulo);
 
@@ -368,7 +415,7 @@ document.addEventListener('DOMContentLoaded', () => {
       titulo: document.getElementById('articuloTitulo').value,
       categoria: document.getElementById('articuloCategoria').value,
       resumen: document.getElementById('articuloResumen').value,
-      contenido: tinymce.get('articuloContenido').getContent(), // <-- HTML generado por TinyMCE
+      contenido: tinymce.get('articuloContenido').getContent(),
       imagen_url: document.getElementById('articuloImagen').value,
       publicado: document.getElementById('articuloPublicado').checked
     };

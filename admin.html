@@ -15,32 +15,34 @@
   <link rel="stylesheet" href="css/styles.css" />
   <link rel="stylesheet" href="css/admin.css" />
   
-  <!-- 1. Supabase JS Client (Debe cargar primero) -->
+  <!-- 1. Supabase JS Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
   <!-- 2. TinyMCE Editor -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js"></script>
   
-  <!-- 3. Nuestro script (defer asegura que espere a que el HTML esté listo) -->
+  <!-- 3. Nuestro script -->
   <script src="js/admin.js" defer></script>
 </head>
 <body>
 
-  <!-- HEADER ADMIN -->
-  <header class="header">
-    <div class="container header__container">
-      <a href="index.html" class="logo">
-        <span class="logo__yc"><i class="fas fa-shield-alt"></i></span>
-        <span class="logo__text">Panel de Administración<br><small>YOELDIS CASTILLO</small></span>
-      </a>
-      <div id="userInfo" style="display: none; align-items: center; gap: 1rem;">
-        <span style="color: var(--text-secondary); font-size: 0.85rem;">
+  <!-- HEADER ADMIN PROFESIONAL -->
+  <header class="header-admin">
+    <div class="container header-admin__container">
+      <div class="header-admin__left">
+        <span class="header-admin__email">
           <i class="fas fa-user-circle"></i> <span id="userName">Admin</span>
         </span>
-        <!-- ID agregado para el botón de salir -->
-        <button id="btnLogout" class="btn btn--outline" style="padding: 0.5rem 1rem; font-size: 0.75rem; min-width: auto;">
+        <button id="btnLogout" class="btn-logout">
           <i class="fas fa-sign-out-alt"></i> Salir
         </button>
+      </div>
+      <div class="header-admin__right">
+        <i class="fas fa-shield-alt"></i>
+        <div class="header-admin__text">
+          <span class="header-admin__title">Panel de Administración</span>
+          <span class="header-admin__subtitle">YOELDIS CASTILLO</span>
+        </div>
       </div>
     </div>
   </header>
@@ -53,7 +55,6 @@
       <p class="contacto__text" style="font-size: 0.95rem; margin-bottom: 2rem;">
         Esta área es exclusiva para el administrador. Inicia sesión para gestionar el contenido de la web.
       </p>
-      <!-- ID agregado para el botón de login -->
       <button id="btnLoginGoogle" class="btn btn--solid" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.8rem;">
         <i class="fab fa-google"></i> Iniciar sesión con Google
       </button>
