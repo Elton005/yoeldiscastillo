@@ -119,14 +119,14 @@ function setupImagenPreview() {
 }
 
 // ==========================================
-// ORDENAMIENTO (Función Mejorada)
+// ORDENAMIENTO (Sistema Robusto)
 // ==========================================
 window.cambiarOrden = async function(tabla, id, direccion) {
-  // Obtener todos los items ordenados correctamente
+  // 1. Obtener todos los items ordenados
   const { data: items, error } = await sb
     .from(tabla)
     .select('id, orden')
-    .order('orden', { ascending: true, nullsLast: false }); // nulls al inicio
+    .order('orden', { ascending: true });
     
   if (error) {
     console.error('Error al obtener items:', error);
@@ -134,57 +134,35 @@ window.cambiarOrden = async function(tabla, id, direccion) {
     return;
   }
 
-  // Encontrar el índice del item actual
+  if (!items || items.length === 0) return;
+
+  // 2. Encontrar el índice del item actual
   const currentIndex = items.findIndex(item => item.id === id);
-  if (currentIndex === -1) {
-    console.error('Item no encontrado:', id);
-    return;
-  }
+  if (currentIndex === -1) return;
 
-  // Calcular nuevo índice
-  let newIndex = direccion === 'up' ? currentIndex - 1 : currentIndex + 1;
-  
-  // Validar límites
-  if (newIndex < 0 || newIndex >= items.length) {
-    console.log('Límite alcanzado');
-    return;
-  }
+  // 3. Calcular nuevo índice
+  const newIndex = direccion === 'up' ? currentIndex - 1 : currentIndex + 1;
+  if (newIndex < 0 || newIndex >= items.length) return;
 
-  const currentItem = items[currentIndex];
-  const swapItem = items[newIndex];
+  // 4. Mover el item en el array (reordenar en memoria)
+  const [movedItem] = items.splice(currentIndex, 1);
+  items.splice(newIndex, 0, movedItem);
 
-  // Si ambos tienen orden null o undefined, usar los índices como referencia
-  const currentOrden = currentItem.orden ?? currentIndex;
-  const swapOrden = swapItem.orden ?? newIndex;
+  // 5. Recalcular TODOS los órdenes (1, 2, 3, 4...)
+  const updates = items.map((item, index) => ({
+    id: item.id,
+    orden: index + 1
+  }));
 
-  console.log(`Intercambiando: ${currentItem.id} (orden: ${currentOrden}) <-> ${swapItem.id} (orden: ${swapOrden})`);
+  // 6. Actualizar en la base de datos (en paralelo)
+  const promises = updates.map(update => 
+    sb.from(tabla).update({ orden: update.orden }).eq('id', update.id)
+  );
 
-  // Actualizar en la base de datos
-  const { error: updateError1 } = await sb
-    .from(tabla)
-    .update({ orden: swapOrden })
-    .eq('id', currentItem.id);
-    
-  if (updateError1) {
-    console.error('Error al actualizar primer item:', updateError1);
-    alert('Error al guardar el orden');
-    return;
-  }
+  await Promise.all(promises);
+  console.log(`✅ Orden de ${tabla} actualizado correctamente`);
 
-  const { error: updateError2 } = await sb
-    .from(tabla)
-    .update({ orden: currentOrden })
-    .eq('id', swapItem.id);
-    
-  if (updateError2) {
-    console.error('Error al actualizar segundo item:', updateError2);
-    alert('Error al guardar el orden');
-    return;
-  }
-
-  console.log('✅ Orden actualizado correctamente');
-  
-  // Recargar la lista
+  // 7. Recargar la lista
   if (tabla === 'libros') {
     await cargarLibros();
   } else {
@@ -199,7 +177,7 @@ async function cargarLibros() {
   const { data, error } = await sb
     .from('libros')
     .select('*')
-    .order('orden', { ascending: true, nullsFirst: true })
+    .order('orden', { ascending: true })
     .order('creado_en', { ascending: false });
   
   const container = document.getElementById('listaLibros');
@@ -292,7 +270,7 @@ async function cargarArticulos() {
   const { data, error } = await sb
     .from('articulos')
     .select('*')
-    .order('orden', { ascending: true, nullsFirst: true })
+    order('orden', { ascending: true })
     .order('creado_en', { ascending: false });
   
   const container = document.getElementById('listaArticulos');
