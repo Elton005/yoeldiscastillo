@@ -119,34 +119,77 @@ function setupImagenPreview() {
 }
 
 // ==========================================
-// ORDENAMIENTO
+// ORDENAMIENTO (Función Mejorada)
 // ==========================================
 window.cambiarOrden = async function(tabla, id, direccion) {
+  // Obtener todos los items ordenados correctamente
   const { data: items, error } = await sb
     .from(tabla)
     .select('id, orden')
-    .order('orden', { ascending: true, nullsFirst: true })
-    .order('creado_en', { ascending: false });
+    .order('orden', { ascending: true, nullsLast: false }); // nulls al inicio
     
-  if (error) return console.error(error);
+  if (error) {
+    console.error('Error al obtener items:', error);
+    alert('Error al cargar los datos');
+    return;
+  }
 
+  // Encontrar el índice del item actual
   const currentIndex = items.findIndex(item => item.id === id);
-  if (currentIndex === -1) return;
+  if (currentIndex === -1) {
+    console.error('Item no encontrado:', id);
+    return;
+  }
 
+  // Calcular nuevo índice
   let newIndex = direccion === 'up' ? currentIndex - 1 : currentIndex + 1;
-  if (newIndex < 0 || newIndex >= items.length) return;
+  
+  // Validar límites
+  if (newIndex < 0 || newIndex >= items.length) {
+    console.log('Límite alcanzado');
+    return;
+  }
 
   const currentItem = items[currentIndex];
   const swapItem = items[newIndex];
 
-  const orden1 = currentItem.orden !== null ? currentItem.orden : currentIndex;
-  const orden2 = swapItem.orden !== null ? swapItem.orden : newIndex;
+  // Si ambos tienen orden null o undefined, usar los índices como referencia
+  const currentOrden = currentItem.orden ?? currentIndex;
+  const swapOrden = swapItem.orden ?? newIndex;
 
-  await sb.from(tabla).update({ orden: orden2 }).eq('id', currentItem.id);
-  await sb.from(tabla).update({ orden: orden1 }).eq('id', swapItem.id);
+  console.log(`Intercambiando: ${currentItem.id} (orden: ${currentOrden}) <-> ${swapItem.id} (orden: ${swapOrden})`);
 
-  if (tabla === 'libros') cargarLibros();
-  else cargarArticulos();
+  // Actualizar en la base de datos
+  const { error: updateError1 } = await sb
+    .from(tabla)
+    .update({ orden: swapOrden })
+    .eq('id', currentItem.id);
+    
+  if (updateError1) {
+    console.error('Error al actualizar primer item:', updateError1);
+    alert('Error al guardar el orden');
+    return;
+  }
+
+  const { error: updateError2 } = await sb
+    .from(tabla)
+    .update({ orden: currentOrden })
+    .eq('id', swapItem.id);
+    
+  if (updateError2) {
+    console.error('Error al actualizar segundo item:', updateError2);
+    alert('Error al guardar el orden');
+    return;
+  }
+
+  console.log('✅ Orden actualizado correctamente');
+  
+  // Recargar la lista
+  if (tabla === 'libros') {
+    await cargarLibros();
+  } else {
+    await cargarArticulos();
+  }
 };
 
 // ==========================================
