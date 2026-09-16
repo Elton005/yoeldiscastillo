@@ -4,46 +4,35 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow" />
-  <title>Administración | Yoeldis Castillo Quiala</title>
+  <title>Panel de Administración | Yoeldis Castillo</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   
-  <!-- Estilos globales y específicos del admin -->
   <link rel="stylesheet" href="css/styles.css" />
   <link rel="stylesheet" href="css/admin.css" />
   
-  <!-- 1. Supabase JS Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  
-  <!-- 2. TinyMCE Editor -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js"></script>
-  
-  <!-- 3. Nuestro script -->
   <script src="js/admin.js" defer></script>
 </head>
 <body>
 
-  <!-- HEADER ADMIN PROFESIONAL -->
+  <!-- HEADER ADMIN -->
   <header class="header-admin">
     <div class="container header-admin__container">
-      <div class="header-admin__left">
-        <span class="header-admin__email">
-          <i class="fas fa-user-circle"></i> <span id="userName">Admin</span>
-        </span>
-        <button id="btnLogout" class="btn-logout">
-          <i class="fas fa-sign-out-alt"></i> Salir
-        </button>
-      </div>
-      <div class="header-admin__right">
+      <div class="header-admin__brand">
         <i class="fas fa-shield-alt"></i>
         <div class="header-admin__text">
           <span class="header-admin__title">Panel de Administración</span>
           <span class="header-admin__subtitle">YOELDIS CASTILLO</span>
         </div>
       </div>
+      <button id="btnLogout" class="btn-logout">
+        <i class="fas fa-sign-out-alt"></i> <span>Cerrar Sesión</span>
+      </button>
     </div>
   </header>
 
@@ -53,7 +42,7 @@
       <i class="fas fa-lock contacto__icon" style="font-size: 3rem;"></i>
       <h2 class="contacto__title" style="font-size: 1.8rem;">Acceso Restringido</h2>
       <p class="contacto__text" style="font-size: 0.95rem; margin-bottom: 2rem;">
-        Esta área es exclusiva para el administrador. Inicia sesión para gestionar el contenido de la web.
+        Esta área es exclusiva para administradores autorizados.
       </p>
       <button id="btnLoginGoogle" class="btn btn--solid" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.8rem;">
         <i class="fab fa-google"></i> Iniciar sesión con Google
@@ -62,13 +51,24 @@
   </section>
 
   <!-- PANTALLA DEL DASHBOARD -->
-  <section id="dashboardScreen" class="autor-page" style="display: none; padding-top: 120px; padding-bottom: 80px;">
+  <section id="dashboardScreen" style="display: none; padding: 120px 0 80px; min-height: 100vh;">
     <div class="container">
-      <h1 class="page__title">Panel de Control</h1>
-      <div class="section__divider"></div>
+      
+      <!-- NAVEGACIÓN POR TABS -->
+      <div class="admin-tabs">
+        <button class="admin-tab active" onclick="cambiarTab('libros')">
+          <i class="fas fa-book"></i> Libros
+        </button>
+        <button class="admin-tab" onclick="cambiarTab('articulos')">
+          <i class="fas fa-newspaper"></i> Artículos
+        </button>
+        <button class="admin-tab" onclick="cambiarTab('administradores')">
+          <i class="fas fa-users"></i> Administradores
+        </button>
+      </div>
 
       <!-- SECCIÓN LIBROS -->
-      <div style="margin-bottom: 4rem;">
+      <div id="tab-libros" class="tab-content active">
         <h2 class="page__title page__title--left" style="font-size: 1.5rem; margin-bottom: 1.5rem;">
           <i class="fas fa-book" style="margin-right: 0.5rem;"></i> Gestionar Libros
         </h2>
@@ -101,21 +101,21 @@
               </div>
               <input type="hidden" id="libroImagen" />
               <small style="color: var(--text-secondary); font-size: 0.75rem;">
-                <i class="fas fa-info-circle"></i> Sube una imagen o pega una URL directamente
+                <i class="fas fa-info-circle"></i> Sube una imagen o pega una URL
               </small>
-              <input type="url" id="libroImagenUrl" class="admin-input" placeholder="O pega una URL de imagen existente" />
+              <input type="url" id="libroImagenUrl" class="admin-input" placeholder="O pega una URL de imagen" />
             </div>
             
             <input type="url" id="libroAmazon" class="admin-input" placeholder="Enlace a Amazon" />
-            <input type="url" id="libroApk" class="admin-input" placeholder="Enlace a APK interactiva (opcional)" />
+            <input type="url" id="libroApk" class="admin-input" placeholder="Enlace a APK (opcional)" />
             <input type="date" id="libroFecha" class="admin-input" />
             
             <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
               <button type="submit" class="btn btn--solid" style="justify-self: start;">
                 <i class="fas fa-save"></i> <span id="btnLibroText">Guardar Libro</span>
               </button>
-              <button type="button" id="btnCancelarEdicion" class="btn btn--outline" style="display: none; justify-self: start;">
-                <i class="fas fa-times"></i> Cancelar edición
+              <button type="button" id="btnCancelarEdicion" class="btn btn--outline" style="display: none;">
+                <i class="fas fa-times"></i> Cancelar
               </button>
             </div>
           </form>
@@ -123,13 +123,13 @@
 
         <div id="listaLibros" style="display: grid; gap: 1rem;">
           <p style="color: var(--text-secondary); text-align: center; padding: 2rem;">
-            <i class="fas fa-spinner fa-spin"></i> Cargando libros...
+            <i class="fas fa-spinner fa-spin"></i> Cargando...
           </p>
         </div>
       </div>
 
       <!-- SECCIÓN ARTÍCULOS -->
-      <div>
+      <div id="tab-articulos" class="tab-content">
         <h2 class="page__title page__title--left" style="font-size: 1.5rem; margin-bottom: 1.5rem;">
           <i class="fas fa-newspaper" style="margin-right: 0.5rem;"></i> Gestionar Artículos
         </h2>
@@ -141,25 +141,22 @@
           <form id="formArticulo" class="admin-form">
             <input type="hidden" id="articuloId" />
             <input type="text" id="articuloTitulo" class="admin-input" placeholder="Título del artículo *" required />
-            <input type="text" id="articuloCategoria" class="admin-input" placeholder="Categoría (ej: Psicología, Desarrollo Personal)" />
+            <input type="text" id="articuloCategoria" class="admin-input" placeholder="Categoría" />
             <textarea id="articuloResumen" class="admin-input" placeholder="Resumen corto" rows="2"></textarea>
-            
-            <!-- TinyMCE se aplicará a este textarea -->
-            <textarea id="articuloContenido" class="admin-input" placeholder="Escribe el contenido del artículo aquí..."></textarea>
-            
-            <input type="url" id="articuloImagen" class="admin-input" placeholder="URL de la imagen de portada" />
+            <textarea id="articuloContenido" class="admin-input" placeholder="Contenido completo..."></textarea>
+            <input type="url" id="articuloImagen" class="admin-input" placeholder="URL de imagen de portada" />
             
             <label class="custom-checkbox">
               <input type="checkbox" id="articuloPublicado" checked /> 
-              Publicar inmediatamente (visible en la web)
+              Publicar inmediatamente
             </label>
             
             <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
               <button type="submit" class="btn btn--solid" style="justify-self: start;">
                 <i class="fas fa-save"></i> <span id="btnArticuloText">Guardar Artículo</span>
               </button>
-              <button type="button" id="btnCancelarEdicionArt" class="btn btn--outline" style="display: none; justify-self: start;">
-                <i class="fas fa-times"></i> Cancelar edición
+              <button type="button" id="btnCancelarEdicionArt" class="btn btn--outline" style="display: none;">
+                <i class="fas fa-times"></i> Cancelar
               </button>
             </div>
           </form>
@@ -167,7 +164,36 @@
 
         <div id="listaArticulos" style="display: grid; gap: 1rem;">
           <p style="color: var(--text-secondary); text-align: center; padding: 2rem;">
-            <i class="fas fa-spinner fa-spin"></i> Cargando artículos...
+            <i class="fas fa-spinner fa-spin"></i> Cargando...
+          </p>
+        </div>
+      </div>
+
+      <!-- SECCIÓN ADMINISTRADORES -->
+      <div id="tab-administradores" class="tab-content">
+        <h2 class="page__title page__title--left" style="font-size: 1.5rem; margin-bottom: 1.5rem;">
+          <i class="fas fa-users" style="margin-right: 0.5rem;"></i> Administradores
+        </h2>
+        
+        <div class="libro-detalle" style="padding: 2rem; margin-bottom: 2rem;">
+          <h3 style="color: var(--gold-primary); margin-bottom: 1rem; font-family: var(--font-heading); font-size: 1.1rem;">
+            <i class="fas fa-user-plus"></i> Agregar Nuevo Administrador
+          </h3>
+          <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem;">
+            Agrega el correo de Google de la persona que deseas autorizar como administrador.
+          </p>
+          
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <input type="email" id="nuevoAdminEmail" class="admin-input" placeholder="correo@ejemplo.com" style="flex: 1; min-width: 250px;" />
+            <button onclick="agregarAdministrador()" class="btn btn--solid">
+              <i class="fas fa-plus"></i> Agregar
+            </button>
+          </div>
+        </div>
+
+        <div id="listaAdministradores" style="display: grid; gap: 1rem;">
+          <p style="color: var(--text-secondary); text-align: center; padding: 2rem;">
+            <i class="fas fa-spinner fa-spin"></i> Cargando administradores...
           </p>
         </div>
       </div>

@@ -1,8 +1,5 @@
 console.log("✅ Script admin.js cargado correctamente");
 
-// ==========================================
-// CONFIGURACIÓN DE SUPABASE
-// ==========================================
 const SUPABASE_URL = 'https://jjbztkljgsdwrqylspeg.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpqYnp0a2xqZ3Nkd3JxeWxzcGVnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY2NDE4MjgsImV4cCI6MjEwMjIxNzgyOH0.lDYEuyrbVDRoMyQwfj4nQk-gve84RhZiFnyRAYhGfD4';
 const STORAGE_BUCKET = 'libros-imagenes';
@@ -34,6 +31,32 @@ function setButtonLoading(btn, isLoading, originalText) {
     btn.disabled = false;
   }
 }
+
+// ==========================================
+// NAVEGACIÓN POR TABS
+// ==========================================
+window.cambiarTab = function(tabName) {
+  // Ocultar todos los tabs
+  document.querySelectorAll('.tab-content').forEach(tab => {
+    tab.classList.remove('active');
+  });
+  
+  // Desactivar todos los botones
+  document.querySelectorAll('.admin-tab').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  
+  // Mostrar el tab seleccionado
+  document.getElementById(`tab-${tabName}`).classList.add('active');
+  
+  // Activar el botón correspondiente
+  event.target.closest('.admin-tab').classList.add('active');
+  
+  // Cargar datos si es necesario
+  if (tabName === 'libros') cargarLibros();
+  if (tabName === 'articulos') cargarArticulos();
+  if (tabName === 'administradores') cargarAdministradores();
+};
 
 // ==========================================
 // SUBIDA DE IMÁGENES
@@ -96,7 +119,7 @@ function setupImagenPreview() {
 }
 
 // ==========================================
-// ORDENAMIENTO (Función Genérica)
+// ORDENAMIENTO
 // ==========================================
 window.cambiarOrden = async function(tabla, id, direccion) {
   const { data: items, error } = await sb
@@ -116,7 +139,6 @@ window.cambiarOrden = async function(tabla, id, direccion) {
   const currentItem = items[currentIndex];
   const swapItem = items[newIndex];
 
-  // Normalizar valores null a su índice para el intercambio
   const orden1 = currentItem.orden !== null ? currentItem.orden : currentIndex;
   const orden2 = swapItem.orden !== null ? swapItem.orden : newIndex;
 
@@ -143,7 +165,7 @@ async function cargarLibros() {
     return;
   }
   if (!data || data.length === 0) {
-    container.innerHTML = `<p style="color: var(--text-secondary); text-align: center; padding: 2rem;"><i class="fas fa-inbox"></i> No hay libros registrados aún.</p>`;
+    container.innerHTML = `<p style="color: var(--text-secondary); text-align: center; padding: 2rem;"><i class="fas fa-inbox"></i> No hay libros registrados.</p>`;
     return;
   }
 
@@ -236,7 +258,7 @@ async function cargarArticulos() {
     return;
   }
   if (!data || data.length === 0) {
-    container.innerHTML = `<p style="color: var(--text-secondary); text-align: center; padding: 2rem;"><i class="fas fa-inbox"></i> No hay artículos registrados aún.</p>`;
+    container.innerHTML = `<p style="color: var(--text-secondary); text-align: center; padding: 2rem;"><i class="fas fa-inbox"></i> No hay artículos registrados.</p>`;
     return;
   }
 
@@ -310,10 +332,59 @@ function cancelarEdicionArticulo() {
 }
 
 // ==========================================
+// GESTIÓN DE ADMINISTRADORES
+// ==========================================
+async function cargarAdministradores() {
+  const container = document.getElementById('listaAdministradores');
+  
+  // Obtener lista de administradores del código
+  const adminEmails = [
+    'rinchosilva5@gmail.com',
+    'eltonaliolivares@gmail.com'
+  ];
+  
+  if (adminEmails.length === 0) {
+    container.innerHTML = `<p style="color: var(--text-secondary); text-align: center; padding: 2rem;"><i class="fas fa-inbox"></i> No hay administradores registrados.</p>`;
+    return;
+  }
+
+  container.innerHTML = adminEmails.map(email => `
+    <div class="admin-item-admin">
+      <div class="admin-email">
+        <i class="fas fa-user-shield"></i>
+        <span>${email}</span>
+      </div>
+      <span class="admin-badge"><i class="fas fa-check"></i> Activo</span>
+    </div>
+  `).join('');
+}
+
+window.agregarAdministrador = async function() {
+  const emailInput = document.getElementById('nuevoAdminEmail');
+  const email = emailInput.value.trim();
+  
+  if (!email) {
+    alert('Por favor ingresa un correo electrónico');
+    return;
+  }
+  
+  if (!email.includes('@')) {
+    alert('Por favor ingresa un correo electrónico válido');
+    return;
+  }
+  
+  // NOTA: Para agregar un admin realmente, necesitas editar el archivo admin.js
+  // y agregar el correo a la lista ADMIN_EMAILS
+  alert(`Para agregar "${email}" como administrador:\n\n1. Abre el archivo js/admin.js\n2. Busca la constante ADMIN_EMAILS\n3. Agrega "${email}" a la lista\n4. Guarda y sube los cambios a Vercel`);
+  
+  emailInput.value = '';
+};
+
+// ==========================================
 // INICIALIZACIÓN
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
-  console.log("✅ DOM cargado. Inicializando componentes...");
+  console.log("✅ DOM cargado. Inicializando...");
 
   // 1. Inicializar TinyMCE
   tinymce.init({
@@ -328,7 +399,7 @@ document.addEventListener('DOMContentLoaded', () => {
     branding: false
   });
 
-  // 2. Manejo de Autenticación
+  // 2. Autenticación
   const btnLogin = document.getElementById('btnLoginGoogle');
   if (btnLogin) {
     btnLogin.addEventListener('click', async (e) => {
@@ -338,9 +409,9 @@ document.addEventListener('DOMContentLoaded', () => {
           provider: 'google',
           options: { redirectTo: window.location.href }
         });
-        if (error) alert('Error al iniciar sesión: ' + error.message);
+        if (error) alert('Error: ' + error.message);
       } catch (err) {
-        alert('Ocurrió un error inesperado: ' + err.message);
+        alert('Error inesperado: ' + err.message);
       }
     });
   }
@@ -358,9 +429,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (session) {
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('dashboardScreen').style.display = 'block';
-      document.getElementById('userName').textContent = session.user.email;
       cargarLibros();
-      cargarArticulos();
     } else {
       document.getElementById('loginScreen').style.display = 'flex';
       document.getElementById('dashboardScreen').style.display = 'none';
@@ -370,7 +439,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // 3. Setup de imagen
   setupImagenPreview();
 
-  // 4. Listeners de formularios
+  // 4. Listeners
   document.getElementById('btnCancelarEdicion')?.addEventListener('click', cancelarEdicion);
   document.getElementById('btnCancelarEdicionArt')?.addEventListener('click', cancelarEdicionArticulo);
 
