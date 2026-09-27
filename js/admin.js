@@ -52,7 +52,7 @@ window.cambiarTab = function(tabName, event) {
   
   if (tabName === 'libros') cargarLibros();
   if (tabName === 'articulos') cargarArticulos();
-  if (tabName === 'destacados') cargarDestacadosAdmin(); // <-- NUEVO
+  if (tabName === 'destacados') cargarDestacadosAdmin();
   if (tabName === 'administradores') cargarAdministradores();
 };
 
@@ -146,7 +146,7 @@ window.cambiarOrden = async function(tabla, id, direccion) {
 
   if (tabla === 'libros') await cargarLibros();
   else if (tabla === 'articulos') await cargarArticulos();
-  else if (tabla === 'destacados') await cargarDestacadosAdmin(); // <-- NUEVO
+  else if (tabla === 'destacados') await cargarDestacadosAdmin();
 };
 
 // ==========================================
@@ -312,7 +312,7 @@ function cancelarEdicionArticulo() {
 }
 
 // ==========================================
-// GESTIÓN DE DESTACADOS (NUEVO)
+// GESTIÓN DE DESTACADOS (CON FORMULARIO)
 // ==========================================
 async function cargarDestacadosAdmin() {
   const container = document.getElementById('listaDestacados');
@@ -379,34 +379,31 @@ async function editarDestacado(id) {
   const { data, error } = await sb.from('destacados').select('*').eq('id', id).single();
   if (error) return alert('Error: ' + error.message);
   
-  const nuevoTitulo = prompt('Título:', data.titulo);
-  if (nuevoTitulo === null) return; // Cancelado
+  document.getElementById('destacadoId').value = data.id;
+  document.getElementById('destacadoTipo').value = data.tipo || 'personalizado';
+  document.getElementById('destacadoTitulo').value = data.titulo || '';
+  document.getElementById('destacadoSubtitulo').value = data.subtitulo || '';
+  document.getElementById('destacadoDescripcion').value = data.descripcion || '';
+  document.getElementById('destacadoTextoBoton').value = data.texto_boton || '';
+  document.getElementById('destacadoUrlBoton').value = data.url_boton || '';
+  document.getElementById('destacadoImagenUrl').value = data.imagen_url || '';
+  document.getElementById('destacadoBadgeTexto').value = data.badge_texto || '';
+  document.getElementById('destacadoActivo').checked = data.activo !== false;
   
-  const nuevoSubtitulo = prompt('Subtítulo:', data.subtitulo || '');
-  const nuevaDescripcion = prompt('Descripción:', data.descripcion || '');
-  const nuevoTextoBoton = prompt('Texto del botón:', data.texto_boton || 'Ver más');
-  const nuevaUrl = prompt('URL del botón (ej: articulos.html o link de APK):', data.url_boton || '');
-  const nuevaImagen = prompt('URL de la imagen:', data.imagen_url || '');
-  const nuevoBadge = prompt('Texto del badge (ej: GRATIS, NUEVO, DESTACADO):', data.badge_texto || '');
-  const nuevoTipo = prompt('Tipo (app, articulo, libro, personalizado):', data.tipo || 'personalizado');
+  document.getElementById('tituloFormDestacado').textContent = 'Actualizar Destacado';
+  document.getElementById('btnDestacadoText').textContent = 'Actualizar Destacado';
+  document.getElementById('btnCancelarEdicionDestacado').style.display = 'inline-flex';
   
-  const { error: updateError } = await sb.from('destacados').update({
-    titulo: nuevoTitulo,
-    subtitulo: nuevoSubtitulo,
-    descripcion: nuevaDescripcion,
-    texto_boton: nuevoTextoBoton,
-    url_boton: nuevaUrl,
-    imagen_url: nuevaImagen,
-    badge_texto: nuevoBadge,
-    tipo: nuevoTipo
-  }).eq('id', id);
-  
-  if (updateError) {
-    alert('Error al actualizar: ' + updateError.message);
-  } else {
-    alert('✅ Destacado actualizado correctamente');
-    cargarDestacadosAdmin();
-  }
+  document.getElementById('formDestacado').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function cancelarEdicionDestacado() {
+  document.getElementById('formDestacado').reset();
+  document.getElementById('destacadoId').value = '';
+  document.getElementById('destacadoActivo').checked = true;
+  document.getElementById('tituloFormDestacado').textContent = 'Agregar Nuevo Destacado';
+  document.getElementById('btnDestacadoText').textContent = 'Guardar Destacado';
+  document.getElementById('btnCancelarEdicionDestacado').style.display = 'none';
 }
 
 // ==========================================
@@ -594,6 +591,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // 4. Listeners de formularios
   document.getElementById('btnCancelarEdicion')?.addEventListener('click', cancelarEdicion);
   document.getElementById('btnCancelarEdicionArt')?.addEventListener('click', cancelarEdicionArticulo);
+  document.getElementById('btnCancelarEdicionDestacado')?.addEventListener('click', cancelarEdicionDestacado); // <-- NUEVO
 
   document.getElementById('formLibro')?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -649,6 +647,41 @@ document.addEventListener('DOMContentLoaded', () => {
       alert(id ? '¡Artículo actualizado!' : '¡Artículo guardado!');
       cancelarEdicionArticulo();
       cargarArticulos();
+    }
+  });
+
+  // 5. Listener del Formulario de Destacados (NUEVO)
+  document.getElementById('formDestacado')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = e.target.querySelector('button[type="submit"]');
+    const originalText = btn.innerHTML;
+    setButtonLoading(btn, true, originalText);
+
+    const id = document.getElementById('destacadoId').value;
+    const destacadoData = {
+      tipo: document.getElementById('destacadoTipo').value,
+      titulo: document.getElementById('destacadoTitulo').value,
+      subtitulo: document.getElementById('destacadoSubtitulo').value,
+      descripcion: document.getElementById('destacadoDescripcion').value,
+      texto_boton: document.getElementById('destacadoTextoBoton').value,
+      url_boton: document.getElementById('destacadoUrlBoton').value,
+      imagen_url: document.getElementById('destacadoImagenUrl').value,
+      badge_texto: document.getElementById('destacadoBadgeTexto').value,
+      activo: document.getElementById('destacadoActivo').checked
+    };
+
+    const error = id 
+      ? (await sb.from('destacados').update(destacadoData).eq('id', parseInt(id))).error
+      : (await sb.from('destacados').insert([destacadoData])).error;
+      
+    setButtonLoading(btn, false, originalText);
+
+    if (error) {
+      alert('Error: ' + error.message);
+    } else {
+      alert(id ? '¡Destacado actualizado!' : '¡Destacado guardado!');
+      cancelarEdicionDestacado();
+      cargarDestacadosAdmin();
     }
   });
 });

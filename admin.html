@@ -144,7 +144,7 @@
         </div>
       </div>
 
-      <!-- SECCIÓN DESTACADOS (NUEVA) -->
+      <!-- SECCIÓN DESTACADOS (CON FORMULARIO) -->
       <div id="tab-destacados" class="tab-content">
         <h2 class="page__title page__title--left" style="font-size: 1.5rem; margin-bottom: 1.5rem;">
           <i class="fas fa-star" style="margin-right: 0.5rem;"></i> Gestionar Destacados
@@ -152,6 +152,52 @@
         <p style="color: var(--text-secondary); margin-bottom: 2rem;">
           Estas son las tarjetas que aparecen en la página de inicio. Modifica el contenido, activa/desactiva o reordena según tus necesidades.
         </p>
+        
+        <!-- Formulario de Destacados -->
+        <div class="libro-detalle" style="padding: 2rem; margin-bottom: 2rem;">
+          <h3 style="color: var(--gold-primary); margin-bottom: 1.5rem; font-family: var(--font-heading); font-size: 1.1rem;">
+            <i class="fas fa-plus-circle"></i> <span id="tituloFormDestacado">Agregar Nuevo Destacado</span>
+          </h3>
+          <form id="formDestacado" class="admin-form">
+            <input type="hidden" id="destacadoId" />
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <select id="destacadoTipo" class="select-input" required>
+                <option value="app">App Interactiva</option>
+                <option value="articulo">Artículo</option>
+                <option value="libro">Libro</option>
+                <option value="personalizado">Personalizado</option>
+              </select>
+              <input type="text" id="destacadoBadgeTexto" class="admin-input" placeholder="Texto del badge (ej: GRATIS, NUEVO)" />
+            </div>
+
+            <input type="text" id="destacadoTitulo" class="admin-input" placeholder="Título principal *" required />
+            <input type="text" id="destacadoSubtitulo" class="admin-input" placeholder="Subtítulo o categoría" />
+            <textarea id="destacadoDescripcion" class="admin-input" placeholder="Descripción corta del contenido" rows="3"></textarea>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <input type="text" id="destacadoTextoBoton" class="admin-input" placeholder="Texto del botón (ej: Leer más)" />
+              <input type="url" id="destacadoUrlBoton" class="admin-input" placeholder="URL de destino (ej: articulos.html o link APK)" />
+            </div>
+
+            <input type="url" id="destacadoImagenUrl" class="admin-input" placeholder="URL de la imagen de portada" />
+            
+            <label class="custom-checkbox">
+              <input type="checkbox" id="destacadoActivo" checked /> 
+              Mostrar en la página de inicio
+            </label>
+            
+            <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+              <button type="submit" class="btn btn--solid" style="justify-self: start;">
+                <i class="fas fa-save"></i> <span id="btnDestacadoText">Guardar Destacado</span>
+              </button>
+              <button type="button" id="btnCancelarEdicionDestacado" class="btn btn--outline" style="display: none;">
+                <i class="fas fa-times"></i> Cancelar
+              </button>
+            </div>
+          </form>
+        </div>
+
         <div id="listaDestacados" style="display: grid; gap: 1rem;">
           <p style="color: var(--text-secondary); text-align: center; padding: 2rem;">
             <i class="fas fa-spinner fa-spin"></i> Cargando destacados...
