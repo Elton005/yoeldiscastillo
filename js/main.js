@@ -261,3 +261,56 @@ window.cerrarToast = function(toast) {
   toast.classList.add('toast-hiding');
   setTimeout(() => toast.remove(), 300);
 };
+
+// ==========================================
+// FUNCIÓN GLOBAL: Verificar login antes de acceder a APK
+// (Necesaria en index.html para los destacados tipo "app")
+// ==========================================
+window.verificarLoginYAccederAPK = async function(apkUrl) {
+  if (!window.sb) {
+    // Si no hay Supabase, abrir directamente
+    window.open(apkUrl, '_blank');
+    return;
+  }
+  
+  const { data: { session } } = await window.sb.auth.getSession();
+  
+  if (session) {
+    // Usuario logueado: abrir APK
+    window.open(apkUrl, '_blank');
+  } else {
+    // Usuario NO logueado: mostrar toast elegante
+    const toast = mostrarToast(
+      'Debes iniciar sesión para acceder a la experiencia interactiva.',
+      'warning',
+      'Acceso restringido',
+      0 // No se cierra automáticamente
+    );
+    
+    // Agregar botones personalizados al toast
+    setTimeout(() => {
+      const actionsContainer = toast.querySelector('#toastActions');
+      if (actionsContainer) {
+        actionsContainer.innerHTML = `
+          <button class="toast__btn toast__btn--primary" onclick="abrirModalDesdeToast()">
+            <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+          </button>
+          <button class="toast__btn toast__btn--secondary" onclick="cerrarToast(this.closest('.toast'))">
+            Ahora no
+          </button>
+        `;
+      }
+    }, 100);
+  }
+};
+
+// Función auxiliar para abrir el modal desde el toast
+window.abrirModalDesdeToast = function() {
+  document.querySelectorAll('.toast').forEach(t => cerrarToast(t));
+  
+  const modal = document.getElementById('modalAuth');
+  if (modal) {
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+};
