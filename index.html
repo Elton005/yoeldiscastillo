@@ -9,24 +9,36 @@
   <meta name="description" content="Yoeldis Castillo Quiala - Licenciado en Psicología y Escritor especializado en desarrollo personal. Descubre libros y artículos para transformar tu vida y comprender tu mente." />
   <meta name="keywords" content="psicólogo, desarrollo personal, autoconocimiento, libros de psicología, Yoeldis Castillo, bienestar emocional" />
   <meta name="author" content="Yoeldis Castillo Quiala" />
+  <meta name="robots" content="index, follow" />
   
-  <!-- OPEN GRAPH (para redes sociales) -->
-  <meta property="og:title" content="Yoeldis Castillo Quiala | Psicólogo y Escritor" />
-  <meta property="og:description" content="Comprende tu mente, transforma tu vida. Libros y recursos de desarrollo personal." />
+  <!-- CANONICAL URL -->
+  <link rel="canonical" href="https://yoeldiscastillo.com/" />
+  
+  <!-- FAVICON (Reemplaza con tu icono real si lo tienes) -->
+  <link rel="icon" type="image/png" href="img/favicon.png" />
+  <link rel="apple-touch-icon" href="img/favicon.png" />
+  
+  <!-- OPEN GRAPH (Facebook, WhatsApp, LinkedIn) -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://yoeldiscastillo.com/" />
+  <meta property="og:title" content="Yoeldis Castillo Quiala | Psicólogo y Escritor" />
+  <meta property="og:description" content="Comprende tu mente, transforma tu vida. Libros y recursos de desarrollo personal." />
   <meta property="og:image" content="https://yoeldiscastillo.com/img/og-image.jpg" />
+  <meta property="og:site_name" content="Yoeldis Castillo Quiala" />
   
   <!-- TWITTER CARDS -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Yoeldis Castillo Quiala | Psicólogo y Escritor" />
   <meta name="twitter:description" content="Comprende tu mente, transforma tu vida." />
+  <meta name="twitter:image" content="https://yoeldiscastillo.com/img/og-image.jpg" />
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <link rel="stylesheet" href="css/styles.css" />
-  <!-- Supabase (Necesario en TODAS las páginas para el login) -->
+  
+  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -47,7 +59,7 @@
           <li><a href="articulos.html" class="nav__link">ARTÍCULOS</a></li>
           <li><a href="contacto.html" class="nav__link">CONTACTO</a></li>
         </ul>
-        <!-- Botón de Login DENTRO del menú hamburguesa (solo visible en móvil) -->
+        <!-- Botón de Login DENTRO del menú hamburguesa (móvil) -->
         <div class="nav__login-mobile">
           <button id="btnLoginUsuarioMobile" class="btn btn--solid">
             <i class="fas fa-user"></i> Iniciar Sesión
@@ -73,44 +85,102 @@
     </div>
   </header>
 
-  <!-- HERO -->
-  <section class="hero">
-    <div class="container hero__container">
-      <div class="hero__content">
-        <h1 class="hero__title">Comprende tu mente,<br>transforma tu vida.</h1>
-        <div class="hero__divider"></div>
-        <h2 class="hero__author">Yoeldis Castillo Quiala</h2>
-        <p class="hero__subtitle">ESCRITOR • PSICÓLOGO • PROFESOR</p>
-        <p class="hero__description">
-          Traduzco la complejidad del comportamiento humano en herramientas prácticas para que construyas una vida con propósito, claridad y decisiones conscientes.
-        </p>
-        <div class="hero__buttons">
-          <a href="libros.html" class="btn btn--solid"><i class="fas fa-book"></i> EXPLORAR MIS LIBROS</a>
-          <a href="sobre-mi.html" class="btn btn--outline">CONOCE MI TRAYECTORIA <i class="fas fa-chevron-right"></i></a>
+  <main>
+    <!-- NUEVO HERO SECTION (Diseño Dividido) -->
+    <section class="hero-split">
+      <div class="container hero-split__container">
+        <!-- Sección izquierda: Imagen -->
+        <div class="hero-split__image">
+          <img src="img/logo-cerebro.jpg" alt="Yoeldis Castillo Quiala - Psicólogo" class="hero-split__img" />
+        </div>
+        
+        <!-- Sección derecha: Contenido textual -->
+        <div class="hero-split__content">
+          <p class="hero-split__subtitle-small"><i class="fas fa-feather-alt"></i> Psicología y Desarrollo Personal</p>
+          
+          <h1 class="hero-split__title">
+            Comprende tu mente,<br>
+            <span class="highlight">transforma tu vida.</span>
+          </h1>
+          
+          <div class="hero-split__divider"></div>
+          
+          <p class="hero-split__description">
+            Traduzco la complejidad del comportamiento humano en herramientas prácticas para que construyas una vida con propósito, claridad y decisiones conscientes.
+          </p>
+          
+          <div class="hero-split__buttons">
+            <a href="libros.html" class="btn btn--solid">
+              <i class="fas fa-book"></i> Explorar Libros
+            </a>
+            <a href="sobre-mi.html" class="btn btn--outline">
+              Conoce mi trayectoria <i class="fas fa-chevron-right"></i>
+            </a>
+          </div>
         </div>
       </div>
+    </section>
+
+    <!-- GRID DE 4 SECCIONES -->
+    <section class="sections-grid">
+      <div class="container">
+        <h2 class="sections-grid__title">
+          <span class="sections-grid__divider"></span>
+          Explora y Descubre
+          <span class="sections-grid__divider"></span>
+        </h2>
+        
+        <!-- Aquí se inyectarán las tarjetas desde Supabase -->
+        <div id="gridDestacados" class="grid-2-promo">
+          <p style="text-align: center; color: var(--text-secondary); padding: 3rem; grid-column: 1 / -1;">
+            <i class="fas fa-spinner fa-spin"></i> Cargando destacados...
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <blockquote class="footer-quote">
+        "El verdadero viaje de descubrimiento no consiste en buscar nuevos paisajes, sino en tener nuevos ojos."
+      </blockquote>
+      
+      <div class="footer-social">
+        <a href="#" class="social-link" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" class="social-link" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="#" class="social-link" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+        <a href="mailto:contacto@yoeldisquiala.com" class="social-link" aria-label="Email"><i class="fas fa-envelope"></i></a>
+      </div>
+      
+      <div class="footer-divider"></div>
+      
+      <p class="footer__pre-text">Experiencia interactiva desarrollada por</p>
+      <div class="footer__brand">
+        <img src="img/Eltonlogo.jpg" alt="EO Logo" class="footer__logo" />
+        <h3 class="footer__name">ELTON OLIVARES</h3>
+      </div>
+      <p class="footer__tagline">INNOVACIÓN • DISEÑO • TECNOLOGÍA</p>
     </div>
-  </section>
+  </footer>
 
   <!-- MODAL DE LOGIN/REGISTRO -->
   <div id="modalAuth" class="modal-auth" style="display: none;">
     <div class="modal-auth__content">
       <button class="modal-auth__close" onclick="cerrarModalAuth()"><i class="fas fa-times"></i></button>
       
-      <!-- GOOGLE PRIMERO -->
       <button onclick="loginConGoogle()" class="btn btn--outline" style="width: 100%; margin-bottom: 1.5rem;">
         <i class="fab fa-google"></i> Continuar con Google
       </button>
       
       <div class="modal-auth__divider"><span>o continúa con</span></div>
       
-      <!-- TABS -->
       <div class="modal-auth__tabs">
-        <button class="modal-auth__tab active" onclick="cambiarTab('login')">Iniciar Sesión</button>
-        <button class="modal-auth__tab" onclick="cambiarTab('registro')">Registrarse</button>
+        <button class="modal-auth__tab active" onclick="cambiarTabAuth('login')">Iniciar Sesión</button>
+        <button class="modal-auth__tab" onclick="cambiarTabAuth('registro')">Registrarse</button>
       </div>
       
-      <!-- Formulario Login -->
       <form id="formLogin" class="modal-auth__form">
         <h3>Bienvenido de vuelta</h3>
         <input type="email" id="loginEmail" placeholder="Tu correo electrónico" required class="admin-input" />
@@ -120,7 +190,6 @@
         </button>
       </form>
       
-      <!-- Formulario Registro -->
       <form id="formRegistro" class="modal-auth__form" style="display: none;">
         <h3>Crea tu cuenta</h3>
         <input type="text" id="registroNombre" placeholder="Tu nombre" class="admin-input" />
@@ -133,20 +202,36 @@
     </div>
   </div>
 
-  <!-- FOOTER -->
-  <footer class="footer">
-    <div class="container">
-      <p class="footer__pre-text">Experiencia interactiva desarrollada por</p>
-      <div class="footer__brand">
-        <img src="img/Eltonlogo.jpg" alt="EO Logo" class="footer__logo" />
-        <h3 class="footer__name">ELTON OLIVARES</h3>
+  <!-- MODAL DE PERFIL DE USUARIO (Cuando está logueado) -->
+  <div id="modalProfile" class="modal-auth" style="display: none;">
+    <div class="modal-auth__content" style="max-width: 400px; text-align: center;">
+      <button class="modal-auth__close" onclick="cerrarModalProfile()"><i class="fas fa-times"></i></button>
+      
+      <div class="profile-avatar-circle" style="width: 80px; height: 80px; background: var(--gold-primary); color: var(--bg-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 1.5rem;">
+        <i class="fas fa-user"></i>
       </div>
-      <p class="footer__tagline">INNOVACIÓN • DISEÑO • TECNOLOGÍA</p>
+      
+      <h3 class="modal-auth__form h3" style="font-family: var(--font-heading); color: var(--gold-primary); margin-bottom: 0.5rem;">Tu Perfil</h3>
+      <p id="profileEmailDisplay" style="color: var(--text-secondary); margin-bottom: 2rem; font-size: 0.9rem;"></p>
+      
+      <div class="modal-auth__divider"><span>¿Necesitas ayuda?</span></div>
+      
+      <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem;">
+        ¿Tienes preguntas sobre los libros o quieres colaborar? Escríbeme directamente.
+      </p>
+      
+      <a href="contacto.html" class="btn btn--solid" style="width: 100%; margin-bottom: 1rem;">
+        <i class="fas fa-envelope"></i> Enviar mensaje
+      </a>
+      
+      <button onclick="cerrarSesionUsuario()" class="btn btn--outline" style="width: 100%;">
+        <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+      </button>
     </div>
-  </footer>
+  </div>
 
   <!-- Scripts Globales -->
   <script src="js/main.js"></script>
-  <script src="js/libros.js"></script> <!-- Solo si es libros.html, quitar en las demás -->
+  <script src="js/destacados.js"></script>
 </body>
 </html>

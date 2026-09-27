@@ -52,6 +52,7 @@ window.cambiarTab = function(tabName, event) {
   
   if (tabName === 'libros') cargarLibros();
   if (tabName === 'articulos') cargarArticulos();
+  if (tabName === 'destacados') cargarDestacadosAdmin(); // <-- NUEVO
   if (tabName === 'administradores') cargarAdministradores();
 };
 
@@ -144,7 +145,8 @@ window.cambiarOrden = async function(tabla, id, direccion) {
   console.log(`✅ Orden de ${tabla} actualizado correctamente`);
 
   if (tabla === 'libros') await cargarLibros();
-  else await cargarArticulos();
+  else if (tabla === 'articulos') await cargarArticulos();
+  else if (tabla === 'destacados') await cargarDestacadosAdmin(); // <-- NUEVO
 };
 
 // ==========================================
@@ -234,13 +236,9 @@ function cancelarEdicion() {
 // GESTIÓN DE ARTÍCULOS
 // ==========================================
 async function cargarArticulos() {
-  const { data, error } = await sb
-    .from('articulos')
-    .select('*')
-    .order('orden', { ascending: true }) // <-- PUNTO CORREGIDO
-    .order('creado_en', { ascending: false });
-  
+  const { data, error } = await sb.from('articulos').select('*').order('orden', { ascending: true }).order('creado_en', { ascending: false });
   const container = document.getElementById('listaArticulos');
+  
   if (error) {
     container.innerHTML = `<p style="color: #ff6b6b; text-align: center;"><i class="fas fa-exclamation-triangle"></i> Error: ${error.message}</p>`;
     return;
@@ -311,6 +309,104 @@ function cancelarEdicionArticulo() {
   document.getElementById('btnCancelarEdicionArt').style.display = 'none';
   document.getElementById('articuloPublicado').checked = true;
   if (tinymce.get('articuloContenido')) tinymce.get('articuloContenido').setContent('');
+}
+
+// ==========================================
+// GESTIÓN DE DESTACADOS (NUEVO)
+// ==========================================
+async function cargarDestacadosAdmin() {
+  const container = document.getElementById('listaDestacados');
+  if (!container) return;
+  
+  const { data, error } = await sb.from('destacados').select('*').order('orden', { ascending: true });
+  
+  if (error) {
+    container.innerHTML = `<p style="color: #ff6b6b; text-align: center;"><i class="fas fa-exclamation-triangle"></i> Error: ${error.message}</p>`;
+    return;
+  }
+  
+  if (!data || data.length === 0) {
+    container.innerHTML = `<p style="color: var(--text-secondary); text-align: center; padding: 2rem;"><i class="fas fa-inbox"></i> No hay destacados registrados.</p>`;
+    return;
+  }
+
+  container.innerHTML = data.map((d, index) => `
+    <div class="admin-item">
+      <div style="flex: 1; display: flex; gap: 1rem; align-items: center;">
+        <div style="display: flex; flex-direction: column; gap: 0.2rem;">
+          <button onclick="cambiarOrden('destacados', ${d.id}, 'up')" class="btn-orden" ${index === 0 ? 'disabled' : ''}><i class="fas fa-chevron-up"></i></button>
+          <button onclick="cambiarOrden('destacados', ${d.id}, 'down')" class="btn-orden" ${index === data.length - 1 ? 'disabled' : ''}><i class="fas fa-chevron-down"></i></button>
+        </div>
+        ${d.imagen_url ? `<img src="${d.imagen_url}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;" />` : '<div style="width:60px; height:60px; background:var(--bg-tertiary); border-radius:4px; display:flex; align-items:center; justify-content:center;"><i class="fas fa-image" style="color:var(--gold-muted)"></i></div>'}
+        <div>
+          <h4 style="color: var(--gold-primary); font-family: var(--font-heading); font-size: 1.1rem;">${d.titulo}</h4>
+          <p style="font-size: 0.8rem; color: var(--text-secondary);">${d.subtitulo || 'Sin subtítulo'}</p>
+          <div style="display: flex; gap: 0.5rem; margin-top: 0.3rem; flex-wrap: wrap;">
+            <span class="status-badge" style="background: rgba(212, 184, 150, 0.15); color: var(--gold-primary);"><i class="fas fa-tag"></i> ${d.tipo}</span>
+            ${d.badge_texto ? `<span class="status-badge status-publicado"><i class="fas fa-star"></i> ${d.badge_texto}</span>` : ''}
+            <span class="status-badge" style="background: ${d.activo ? 'rgba(74, 222, 128, 0.15)' : 'rgba(239, 68, 68, 0.15)'}; color: ${d.activo ? '#4ade80' : '#ef4444'};">
+              <i class="fas fa-${d.activo ? 'check' : 'times'}"></i> ${d.activo ? 'Activo' : 'Inactivo'}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="admin-actions">
+        <button onclick="editarDestacado(${d.id})" class="btn-icon" title="Editar"><i class="fas fa-edit"></i></button>
+        <button onclick="toggleDestacado(${d.id}, ${d.activo})" class="btn-icon" title="${d.activo ? 'Desactivar' : 'Activar'}"><i class="fas fa-${d.activo ? 'eye' : 'eye-slash'}"></i></button>
+        <button onclick="eliminarDestacado(${d.id})" class="btn-icon delete" title="Eliminar"><i class="fas fa-trash-alt"></i></button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function toggleDestacado(id, estadoActual) {
+  const { error } = await sb.from('destacados').update({ activo: !estadoActual }).eq('id', id);
+  if (error) {
+    alert('Error: ' + error.message);
+    return;
+  }
+  cargarDestacadosAdmin();
+}
+
+async function eliminarDestacado(id) {
+  if (!confirm('¿Estás seguro de eliminar este destacado?')) return;
+  const { error } = await sb.from('destacados').delete().eq('id', id);
+  if (error) alert('Error: ' + error.message);
+  else cargarDestacadosAdmin();
+}
+
+async function editarDestacado(id) {
+  const { data, error } = await sb.from('destacados').select('*').eq('id', id).single();
+  if (error) return alert('Error: ' + error.message);
+  
+  const nuevoTitulo = prompt('Título:', data.titulo);
+  if (nuevoTitulo === null) return; // Cancelado
+  
+  const nuevoSubtitulo = prompt('Subtítulo:', data.subtitulo || '');
+  const nuevaDescripcion = prompt('Descripción:', data.descripcion || '');
+  const nuevoTextoBoton = prompt('Texto del botón:', data.texto_boton || 'Ver más');
+  const nuevaUrl = prompt('URL del botón (ej: articulos.html o link de APK):', data.url_boton || '');
+  const nuevaImagen = prompt('URL de la imagen:', data.imagen_url || '');
+  const nuevoBadge = prompt('Texto del badge (ej: GRATIS, NUEVO, DESTACADO):', data.badge_texto || '');
+  const nuevoTipo = prompt('Tipo (app, articulo, libro, personalizado):', data.tipo || 'personalizado');
+  
+  const { error: updateError } = await sb.from('destacados').update({
+    titulo: nuevoTitulo,
+    subtitulo: nuevoSubtitulo,
+    descripcion: nuevaDescripcion,
+    texto_boton: nuevoTextoBoton,
+    url_boton: nuevaUrl,
+    imagen_url: nuevaImagen,
+    badge_texto: nuevoBadge,
+    tipo: nuevoTipo
+  }).eq('id', id);
+  
+  if (updateError) {
+    alert('Error al actualizar: ' + updateError.message);
+  } else {
+    alert('✅ Destacado actualizado correctamente');
+    cargarDestacadosAdmin();
+  }
 }
 
 // ==========================================
@@ -393,7 +489,7 @@ window.eliminarAdministrador = async function(id, email) {
 let isVerifying = false;
 
 async function verificarAcceso() {
-  if (isVerifying) return; // Evita ejecuciones simultáneas
+  if (isVerifying) return;
   isVerifying = true;
 
   try {
@@ -403,11 +499,7 @@ async function verificarAcceso() {
       const userEmail = session.user.email.toLowerCase().trim();
       console.log("🔍 Verificando permisos para:", userEmail);
 
-      const { data: adminData, error } = await sb
-        .from('administradores')
-        .select('id, email')
-        .eq('email', userEmail)
-        .maybeSingle();
+      const { data: adminData, error } = await sb.from('administradores').select('id, email').eq('email', userEmail).maybeSingle();
 
       if (adminData && !error) {
         console.log("✅ Acceso concedido. ID:", adminData.id);
@@ -457,15 +549,13 @@ document.addEventListener('DOMContentLoaded', () => {
     branding: false
   });
 
-  // 2. Autenticación: Botón de Login (Redirección limpia)
+  // 2. Autenticación: Botón de Login
   const btnLogin = document.getElementById('btnLoginGoogle');
   if (btnLogin) {
     btnLogin.addEventListener('click', async (e) => {
       e.preventDefault();
       try {
-        // URL exacta de admin.html para evitar que Google lo mande a index.html
         const redirectUrl = window.location.origin + window.location.pathname;
-        
         const { error } = await sb.auth.signInWithOAuth({
           provider: 'google',
           options: { redirectTo: redirectUrl }
