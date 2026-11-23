@@ -74,6 +74,7 @@ http
         "http://127.0.0.1:5173",
         "http://127.0.0.1:5177",
         "http://127.0.0.1:54330",
+        "http://127.0.0.1:54331",
         "http://127.0.0.1:4173",
       ].includes(req.headers.origin)
         ? req.headers.origin

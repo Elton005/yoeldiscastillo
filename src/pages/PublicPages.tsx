@@ -3,7 +3,12 @@ import { createPortal } from "react-dom";
 import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { listContent, contentKey } from "../services/content";
-import { type Content, type Table, safeUrl } from "../models/content";
+import {
+  type Content,
+  type Table,
+  publicAsset,
+  safeUrl,
+} from "../models/content";
 import { ContentState } from "../components/ContentState";
 import { AuthorImage } from "../components/AuthorImage";
 import { RichText } from "../components/RichText";
@@ -333,7 +338,7 @@ export function Books() {
             </div>
             <div className="escritor-amigo__imagen">
               <img
-                src="/img/junior-osmany.jpg"
+                src={publicAsset("/img/junior-osmany.jpg")}
                 alt="Junior Osmany Coronel Durán"
                 loading="lazy"
               />

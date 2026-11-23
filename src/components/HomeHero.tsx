@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 import { Icon } from "./Icon";
 import { ResourceLink } from "./ResourceLink";
-import { safeUrl } from "../models/content";
+import { publicAsset, safeUrl } from "../models/content";
 import { useSiteSettings } from "../hooks/useSiteSettings";
 const bundledPortrait = "/img/hero/author-1141.webp";
 const bundledLibrary = "/img/hero/library-1672.webp";
@@ -20,11 +20,15 @@ export function HomeHero() {
           <>
             <source
               media="(max-width: 767px)"
-              srcSet="/img/hero/library-mobile-640.webp 640w, /img/hero/library-mobile-960.webp 960w"
+              srcSet={publicAsset(
+                "/img/hero/library-mobile-640.webp 640w, /img/hero/library-mobile-960.webp 960w",
+              )}
               sizes="100vw"
             />
             <source
-              srcSet="/img/hero/library-1024.webp 1024w, /img/hero/library-1672.webp 1672w"
+              srcSet={publicAsset(
+                "/img/hero/library-1024.webp 1024w, /img/hero/library-1672.webp 1672w",
+              )}
               sizes="100vw"
             />
           </>
@@ -48,14 +52,18 @@ export function HomeHero() {
               <source
                 media="(min-width: 1366px)"
                 type="image/webp"
-                srcSet="/img/hero/seated-560.webp 560w, /img/hero/seated-840.webp 840w, /img/hero/seated-1122.webp 1122w"
+                srcSet={publicAsset(
+                  "/img/hero/seated-560.webp 560w, /img/hero/seated-840.webp 840w, /img/hero/seated-1122.webp 1122w",
+                )}
                 sizes="(min-width: 1600px) 650px, 48vw"
               />
             )}
             {settings.homeImage === bundledPortrait && (
               <source
                 type="image/webp"
-                srcSet="/img/hero/author-480.webp 480w, /img/hero/author-768.webp 768w, /img/hero/author-1141.webp 1141w"
+                srcSet={publicAsset(
+                  "/img/hero/author-480.webp 480w, /img/hero/author-768.webp 768w, /img/hero/author-1141.webp 1141w",
+                )}
                 sizes="(max-width: 767px) min(88vw, 340px), 360px"
               />
             )}

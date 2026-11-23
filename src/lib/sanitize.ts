@@ -1,4 +1,5 @@
 import sanitize from "sanitize-html";
+import { publicAsset } from "../models/content";
 export function sanitizeRichHtml(html: string): string {
   return sanitize(html, {
     allowedTags: [
@@ -49,7 +50,11 @@ export function sanitizeRichHtml(html: string): string {
     transformTags: {
       img: (_tag, attributes) => ({
         tagName: "img",
-        attribs: { ...attributes, loading: "lazy" },
+        attribs: {
+          ...attributes,
+          src: publicAsset(attributes.src || ""),
+          loading: "lazy",
+        },
       }),
     },
     exclusiveFilter: (frame) =>

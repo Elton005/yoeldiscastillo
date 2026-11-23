@@ -1,4 +1,8 @@
 import { z } from "zod";
+// Public resources must respect the hosting subdirectory (GitHub Pages).
+export function publicAsset(value: string): string {
+  return value.replace(/(^|,\s*)\/img\//g, `$1${import.meta.env.BASE_URL}img/`);
+}
 export const tables = ["libros", "articulos", "destacados"] as const;
 export type Table = (typeof tables)[number];
 export const safeUrl = (value: string, image = false): string => {
@@ -9,7 +13,8 @@ export const safeUrl = (value: string, image = false): string => {
       input,
     )
   ) {
-    return input.startsWith("/") ? input : `/${input}`;
+    const path = input.startsWith("/") ? input : `/${input}`;
+    return image ? publicAsset(path) : path;
   }
   try {
     const url = new URL(input);

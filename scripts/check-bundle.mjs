@@ -25,6 +25,8 @@ async function scan(path) {
     }
   }
 }
-await scan("dist");
-await scan("server");
+for (const directory of process.argv.slice(2).length
+  ? process.argv.slice(2)
+  : ["dist", "server"])
+  await scan(directory);
 console.log("Bundles revisados: sin claves Supabase privilegiadas detectadas.");

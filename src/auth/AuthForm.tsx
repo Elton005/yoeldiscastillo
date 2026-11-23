@@ -150,7 +150,7 @@ export function AuthForm({ onClose }: { onClose: () => void }) {
                         password: values.password,
                         options: {
                           data: { nombre: values.nombre },
-                          emailRedirectTo: `${window.location.origin}/auth/callback`,
+                          emailRedirectTo: `${window.location.origin}${import.meta.env.BASE_URL}auth/callback`,
                         },
                       })
                     : await db().auth.signInWithPassword({

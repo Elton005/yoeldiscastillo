@@ -26,7 +26,7 @@ npm run build
 npm run preview
 ```
 
-`check:architecture` detecta imports relativos rotos, ciclos, módulos sin uso y dependencias entre capas incorrectas. `build` incluye esa comprobación, TypeScript, compilación cliente/SSR y escáner de claves. `preview` sirve el resultado local en el puerto 4173.
+`check:architecture` detecta imports relativos rotos, ciclos, módulos sin uso y dependencias entre capas incorrectas. `build` incluye esa comprobación, TypeScript, compilación React/Vite y escáner de claves. `preview` sirve el resultado local en el puerto 4173.
 
 ## Organización
 
@@ -43,7 +43,9 @@ npm run preview
 | `supabase`                                           | Migraciones, función de imágenes y pruebas de permisos    |
 | `tests`, `scripts`                                   | Verificación y herramientas del proyecto                  |
 
-`index.html` es la única plantilla fuente de la aplicación. `src/main.tsx` es la entrada del navegador; `src/entry-server.tsx` genera HTML público. La compilación crea `dist/` y `server/`; son artefactos ignorados, no versiones adicionales del código. El adaptador HTTP se mantiene separado en `api/`.
+`index.html` es la única plantilla fuente de la aplicación. El despliegue principal es React + Vite estático, con `dist/index.html` y navegación SPA. `src/main.tsx` es la entrada del navegador. `npm run build` conserva el HTML compilado en `dist/`. `npm run build:pages` genera `dist-pages/` para GitHub Pages. El renderer de `src/entry-server.tsx` se conserva para comprobaciones opcionales con `npm run build:ssr` y `npm run preview:ssr`; no interviene en el despliegue principal.
+
+Configuración y diagnóstico: [despliegue](docs/DEPLOYMENT.md).
 
 El hero utiliza el recurso sentado desde 1366 px y el retrato de pie en pantallas menores. Se conserva la estética marrón/dorada y el footer con firma de Elton Olivares. El panel mantiene CRUD, búsquedas, filtros, orden, imágenes, borradores, editor enriquecido, miembros y contenido personalizable.
 

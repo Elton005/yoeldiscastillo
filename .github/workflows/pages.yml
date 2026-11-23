@@ -1,0 +1,40 @@
+name: Deploy React to GitHub Pages
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - uses: actions/configure-pages@v5
+      - run: npm ci
+      - name: Validate and build React
+        run: |
+          npm run check:deployment-env
+          npm run build:pages
+        env:
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          VITE_SITE_URL: ${{ vars.VITE_SITE_URL }}
+          PAGES_BASE_PATH: ${{ vars.PAGES_BASE_PATH || '/yoeldiscastillo/' }}
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist-pages
+      - uses: actions/deploy-pages@v4
+        id: deployment

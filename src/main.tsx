@@ -16,7 +16,7 @@ const root = document.getElementById("root")!;
 const app = (
   <QueryClientProvider client={client}>
     <HydrationBoundary state={state ? JSON.parse(state) : undefined}>
-      <BrowserRouter>
+      <BrowserRouter basename={import.meta.env.BASE_URL}>
         <AuthProvider>
           <App />
         </AuthProvider>

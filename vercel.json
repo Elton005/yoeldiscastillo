@@ -1,17 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": null,
-  "buildCommand": "npm run build",
+  "framework": "vite",
+  "installCommand": "npm ci",
+  "buildCommand": "npm run build:deploy",
   "outputDirectory": "dist",
-  "functions": {
-    "api/render.mjs": { "includeFiles": "server/**", "maxDuration": 30 }
-  },
-  "redirects": [
-    { "source": "/index.html", "destination": "/", "permanent": true }
-  ],
-  "rewrites": [
-    { "source": "/:path*", "destination": "/api/render?path=/:path*" }
-  ],
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
   "headers": [
     {
       "source": "/(.*)",

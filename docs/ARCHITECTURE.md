@@ -1,14 +1,14 @@
 # Arquitectura actual
 
-## Entradas y renderizado
+## Entradas y publicación
 
-- `index.html`: única plantilla fuente, consumida por Vite.
-- `src/main.tsx`: navegador, Router, Query y Auth; hidrata el HTML cuando existe estado SSR.
-- `src/entry-server.tsx`: precarga contenido público y ajustes, genera HTML, metadatos, sitemap y estado de hidratación.
-- `scripts/serve.mjs`: servidor de comprobación local de la compilación.
-- `api/render.mjs`: adaptador HTTP independiente de la presentación.
+El despliegue principal elegido es React + Vite estático. `index.html` es la plantilla fuente; `src/main.tsx` monta React y BrowserRouter. Vercel declara `framework: vite`, compila a `dist/` y resuelve las rutas SPA con `index.html`. No hay función SSR en `api/` que pueda impedir abrir la página.
 
-La compilación separa recursos estáticos en `dist/` y renderer/plantilla en `server/`. No se sirve el HTML fuente de Vite como documento compilado. Estas carpetas se regeneran y no se versionan.
+GitHub Pages usa el workflow `.github/workflows/pages.yml`: compila a `dist-pages/`, configura el prefijo `/yoeldiscastillo/` y publica únicamente ese artefacto. Las entradas públicas conocidas, acceso y callback tienen copias del HTML compilado; `404.html` permite montar Router para detalles dinámicos. Estos detalles pueden conservar estado HTTP 404 al recargar en Pages, plataforma sin rewrites. Vercel sí responde 200 en esas rutas.
+
+`publicAsset` adapta las imágenes internas y srcset al prefijo; BrowserRouter usa `BASE_URL`. Los callbacks de Auth también respetan ese prefijo. El contenido estático desplegado necesita JavaScript para mostrar la interfaz y cargar datos.
+
+`src/entry-server.tsx`, `scripts/serve.mjs` y `scripts/finalize-build.mjs` se conservan como renderizado opcional local/pruebas, accesible con `build:ssr`/`preview:ssr`. No forman parte del build de publicación estática. Ver [despliegue](DEPLOYMENT.md).
 
 ## Capas
 

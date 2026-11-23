@@ -36,7 +36,11 @@ export function AuthCallback() {
         await refresh();
         const next = safeNext(sessionStorage.getItem("auth-next"));
         sessionStorage.removeItem("auth-next");
-        window.history.replaceState({}, "", "/auth/callback");
+        window.history.replaceState(
+          {},
+          "",
+          `${import.meta.env.BASE_URL}auth/callback`,
+        );
         navigate(next === "/" ? "/acceso" : next, { replace: true });
       } catch {
         setMessage("No se pudo verificar el acceso. Vuelve a iniciar sesión.");

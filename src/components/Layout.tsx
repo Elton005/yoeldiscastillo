@@ -4,7 +4,7 @@ import { useAuth } from "../auth/AuthProvider";
 import { AuthDialogsProvider, useAuthDialogs } from "../auth/AuthDialogs";
 import { db } from "../lib/supabase";
 import { useSiteSettings } from "../hooks/useSiteSettings";
-import { safeUrl } from "../models/content";
+import { publicAsset, safeUrl } from "../models/content";
 import { SiteFooter } from "./SiteFooter";
 import { Icon } from "./Icon";
 const navigation = [
@@ -212,7 +212,7 @@ function Shell() {
             </p>
             <div className="footer__brand">
               <img
-                src="/img/Eltonlogo.jpg"
+                src={publicAsset("/img/Eltonlogo.jpg")}
                 alt="EO Logo"
                 className="footer__logo"
               />

@@ -10,7 +10,9 @@ export async function googleLogin(next = "/") {
   sessionStorage.setItem("auth-next", safeNext(next));
   const { error } = await db().auth.signInWithOAuth({
     provider: "google",
-    options: { redirectTo: `${window.location.origin}/auth/callback` },
+    options: {
+      redirectTo: `${window.location.origin}${import.meta.env.BASE_URL}auth/callback`,
+    },
   });
   if (error)
     throw new Error(
