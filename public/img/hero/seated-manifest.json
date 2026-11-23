@@ -1,0 +1,30 @@
+{
+  "original": "assets/refinement-originals/author-seated.png",
+  "width": 1122,
+  "height": 1402,
+  "hasAlpha": true,
+  "transparent": 430295,
+  "partial": 1142404,
+  "opaque": 345,
+  "method": "Direct responsive WebP encoding of supplied seated cutout; no generative edits or changes to pose/face.",
+  "variants": [
+    {
+      "path": "public/img/hero/seated-560.webp",
+      "width": 560,
+      "height": 700,
+      "bytes": 81122
+    },
+    {
+      "path": "public/img/hero/seated-840.webp",
+      "width": 840,
+      "height": 1050,
+      "bytes": 160448
+    },
+    {
+      "path": "public/img/hero/seated-1122.webp",
+      "width": 1122,
+      "height": 1402,
+      "bytes": 249546
+    }
+  ]
+}

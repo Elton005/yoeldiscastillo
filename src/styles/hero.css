@@ -1,0 +1,283 @@
+/* Approved layered hero. All rules are scoped to this section. */
+.editorial-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+  margin-top: var(--public-header-height, 78px);
+  color: #f8f3ea;
+  background: #1b110b;
+  container-type: inline-size;
+}
+.editorial-hero__background {
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+}
+.editorial-hero__background img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+.editorial-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background: linear-gradient(
+    90deg,
+    rgba(20, 11, 5, 0.04),
+    rgba(20, 11, 5, 0.18) 38%,
+    rgba(14, 8, 4, 0.72) 65%,
+    rgba(12, 7, 4, 0.88)
+  );
+}
+.editorial-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(0deg, rgba(26, 16, 9, 0.72), transparent 22%);
+}
+.editorial-hero__container {
+  width: min(100%, 1600px);
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 48fr) minmax(0, 52fr);
+  min-height: clamp(550px, 44vw, 640px);
+  align-items: center;
+}
+.editorial-hero__visual {
+  height: min(var(--portrait-height, 640px), 58vw, 760px);
+  max-height: 100%;
+  min-width: 0;
+  align-self: end;
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  padding-top: 1rem;
+  mask-image: linear-gradient(to bottom, #000 88%, transparent);
+}
+.editorial-hero__portrait {
+  display: block;
+  height: 100%;
+  width: auto;
+  aspect-ratio: 1141/1379;
+  max-width: 100%;
+}
+.editorial-hero__portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.3));
+}
+.editorial-hero__visual--circle .editorial-hero__portrait {
+  clip-path: ellipse(49% 50% at 50% 50%);
+}
+.editorial-hero__visual--rounded {
+  mask-image: linear-gradient(to bottom, #000 75%, transparent);
+}
+.editorial-hero__content {
+  min-width: 0;
+  padding: clamp(2rem, 4vw, 4.5rem) clamp(1.5rem, 4vw, 5rem)
+    clamp(2rem, 4vw, 4.5rem) clamp(1rem, 2vw, 2.5rem);
+}
+.editorial-hero__eyebrow {
+  display: flex;
+  gap: 0.7rem;
+  align-items: center;
+  font-family: var(--font-heading);
+  color: #dcc29e;
+  font-size: clamp(0.8rem, 1.1vw, 1.2rem);
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+  margin-bottom: 1.3rem;
+}
+.editorial-hero__title {
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 3.2vw, 3.5rem);
+  font-weight: 500;
+  line-height: 1.22;
+  letter-spacing: 0.012em;
+  margin: 0;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+}
+.editorial-hero__title span {
+  color: #dcc29e;
+  font-weight: 400;
+}
+.editorial-hero__divider {
+  position: relative;
+  width: 100px;
+  height: 2px;
+  background: #c9aa6b;
+  margin: 1.6rem 0;
+}
+.editorial-hero__divider::after {
+  content: "";
+  width: 5px;
+  height: 5px;
+  position: absolute;
+  border-radius: 50%;
+  background: #dcc29e;
+  right: -6px;
+  top: -1.5px;
+}
+.editorial-hero__description {
+  font-weight: 400;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.05rem, 1.5vw, 1.5rem);
+  line-height: 1.65;
+  color: #e8d5c4;
+  max-width: 38em;
+}
+.editorial-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+.editorial-hero__actions .btn {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  min-height: 52px;
+  min-width: 0;
+  padding: 0.9rem 1.4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  font-size: clamp(1rem, 1.4vw, 1.3rem);
+  letter-spacing: 0;
+  text-transform: none;
+  border-radius: 3px;
+}
+.editorial-hero__actions .btn--solid {
+  background: #dcc29e;
+  color: #23160d;
+  box-shadow: none;
+}
+.editorial-hero__actions .btn--outline {
+  border-color: #c9aa6b;
+  color: #dcc29e;
+  background: rgba(20, 11, 5, 0.45);
+}
+.editorial-hero__actions .btn:hover {
+  transform: translateY(-1px);
+}
+/* Stack when a readable text column plus the portrait no longer fit. */
+@container (max-width: 1365px) {
+  .editorial-hero__container {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+  .editorial-hero__visual {
+    height: clamp(280px, 48cqw, 410px);
+    width: 100%;
+    padding-top: 1rem;
+  }
+  .editorial-hero__content {
+    padding: 1rem clamp(1.25rem, 5cqw, 3.5rem) 2.5rem;
+    text-align: center;
+    background: linear-gradient(
+      0deg,
+      rgba(20, 11, 5, 0.94),
+      rgba(20, 11, 5, 0.9) 80%,
+      transparent
+    );
+  }
+  .editorial-hero__eyebrow {
+    justify-content: center;
+    font-size: clamp(0.72rem, 1.8cqw, 1rem);
+    margin-bottom: 1rem;
+  }
+  .editorial-hero__title {
+    font-size: clamp(1.55rem, 4.4cqw, 2.7rem);
+  }
+  .editorial-hero__divider {
+    margin: 1.1rem auto;
+    width: 70px;
+  }
+  .editorial-hero__description {
+    font-size: clamp(1rem, 2.1cqw, 1.25rem);
+    max-width: 42rem;
+    margin-inline: auto;
+  }
+  .editorial-hero__actions {
+    justify-content: center;
+    margin-top: 1.5rem;
+  }
+}
+@media (max-width: 767px) {
+  .editorial-hero {
+    margin-top: var(--public-header-height, 68px);
+  }
+  .editorial-hero__background img {
+    object-position: 25% top;
+  }
+  .editorial-hero::before {
+    background: linear-gradient(
+      180deg,
+      rgba(14, 8, 4, 0.05),
+      rgba(14, 8, 4, 0.12) 28%,
+      rgba(14, 8, 4, 0.9) 55%
+    );
+  }
+  .editorial-hero__visual {
+    height: clamp(260px, 76vw, 340px);
+    padding-top: 0.5rem;
+  }
+  .editorial-hero__content {
+    padding-top: 0.8rem;
+  }
+  .editorial-hero__title {
+    font-size: clamp(1.25rem, 6vw, 1.65rem);
+  }
+  .editorial-hero__actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+  .editorial-hero__actions .btn {
+    width: 100%;
+    min-height: 48px;
+    font-size: 0.95rem;
+  }
+}
+.settings-preview .editorial-hero {
+  margin-top: 0;
+}
+@media (min-width: 1024px) and (max-width: 1199px) {
+  .editorial-hero {
+    margin-top: var(--public-header-height, 130px);
+  }
+}
+
+@media (min-width: 1366px) {
+  .editorial-hero__container {
+    min-height: clamp(640px, 49vw, 760px);
+  }
+  .editorial-hero__visual {
+    height: min(calc(var(--portrait-height, 640px) * 1.12), 54vw, 800px);
+  }
+  .editorial-hero__portrait--adaptive {
+    aspect-ratio: 1122/1402;
+    /* The supplied chair meets the left edge of its canvas. Blend that edge
+       into the library instead of displaying a rectangular crop boundary. */
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 6%,
+      #000 98%,
+      transparent
+    );
+  }
+  .editorial-hero__portrait img {
+    filter: none;
+  }
+}

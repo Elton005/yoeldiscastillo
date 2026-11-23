@@ -1,0 +1,294 @@
+/* Public-site finishing only: administrative forms retain their own presentation. */
+.site-public-shell {
+  --editorial-radius: 8px;
+  --editorial-border: rgba(212, 184, 150, 0.24);
+  --editorial-shadow: 0 6px 22px rgba(0, 0, 0, 0.22);
+}
+.site-public-shell :is(.page__title, .author-heading h1, .contacto__title) {
+  font-weight: 500;
+  letter-spacing: 0.015em;
+  line-height: 1.3;
+  font-size: clamp(1.8rem, 2.6vw, 2.5rem);
+}
+.site-public-shell :is(.section__subtitle, .author-heading .section__subtitle) {
+  line-height: 1.75;
+  font-weight: 400;
+}
+.site-public-shell
+  :is(
+    .autor-page__text p,
+    .libro-detalle__descripcion,
+    .contacto__text,
+    .promo-card__text
+  ) {
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.8;
+  color: var(--text-secondary);
+}
+.site-public-shell .autor-page__text p {
+  max-width: 70ch;
+}
+.site-public-shell :is(.articulo-card__resumen, .libro-detalle__subtitulo) {
+  font-size: 0.95rem;
+  font-weight: 400;
+  line-height: 1.75;
+}
+.site-public-shell
+  :is(.articulo-card__titulo, .libro-detalle__titulo, .promo-card__title) {
+  line-height: 1.35;
+  font-weight: 500;
+  letter-spacing: 0.015em;
+}
+.site-public-shell .articulo-modal__texto {
+  font-size: 1.05rem;
+  line-height: 1.85;
+}
+.site-public-shell
+  :is(.libro-detalle, .articulo-card, .promo-card, .contacto-card) {
+  border-radius: var(--editorial-radius);
+  border: 1px solid var(--editorial-border);
+  box-shadow: var(--editorial-shadow);
+}
+.site-public-shell .libro-detalle {
+  padding: clamp(1.5rem, 3vw, 2.5rem);
+}
+.site-public-shell :is(.articulo-card__contenido, .promo-card__content) {
+  padding: 1.75rem;
+}
+.site-public-shell .articulo-card__img-wrapper {
+  height: clamp(190px, 17vw, 230px);
+}
+.site-public-shell .articulo-card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.site-public-shell .libro-detalle__portada img {
+  object-fit: contain;
+  border-radius: 4px;
+}
+.site-public-shell :is(.articulo-card, .promo-card):hover {
+  transform: translateY(-2px);
+  border-color: rgba(212, 184, 150, 0.48);
+  box-shadow: 0 9px 26px rgba(0, 0, 0, 0.27);
+}
+.site-public-shell .promo-card:hover .promo-card__image img {
+  transform: scale(1.025);
+}
+.site-public-shell
+  main
+  :where(
+    .libros-page,
+    .articulos-page,
+    .autor-page,
+    .contacto-page,
+    .sections-grid
+  )
+  .btn,
+.site-public-shell :is(.promo-card__btn, .btn-amazon, .btn-apk) {
+  min-height: 44px;
+  padding: 0.8rem 1.25rem;
+  gap: 0.65rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  line-height: 1.5;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+  box-shadow: none;
+}
+.site-public-shell
+  main
+  :where(
+    .libros-page,
+    .articulos-page,
+    .autor-page,
+    .contacto-page,
+    .sections-grid
+  )
+  .btn:hover,
+.site-public-shell :is(.promo-card__btn, .btn-amazon, .btn-apk):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
+}
+.site-public-shell .contacto__email {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  border-radius: 4px;
+  font-size: clamp(0.85rem, 1.1vw, 1rem);
+}
+.site-public-shell :is(a, button):focus-visible {
+  outline: 2px solid var(--gold-primary);
+  outline-offset: 4px;
+}
+.site-public-shell .header {
+  border-bottom: 1px solid rgba(212, 184, 150, 0.2);
+}
+.site-public-shell .nav__link {
+  letter-spacing: 0.09em;
+}
+.site-footer {
+  background: #211710;
+  border-top: 1px solid rgba(212, 184, 150, 0.24);
+  color: #dfcebc;
+  padding: 3.5rem 0 1.25rem;
+}
+.site-footer__quote {
+  color: var(--gold-primary);
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-size: clamp(1.1rem, 1.45vw, 1.35rem);
+  font-weight: 400;
+  line-height: 1.7;
+  max-width: 65ch;
+  margin: 0 auto 3rem;
+  padding-bottom: 2.25rem;
+  border-bottom: 1px solid rgba(212, 184, 150, 0.2);
+  text-align: center;
+}
+.site-footer__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.65fr) minmax(0, 1fr);
+  gap: clamp(2rem, 4vw, 4rem);
+  padding-bottom: 2.75rem;
+}
+.site-footer h2 {
+  color: #f3e5d3;
+  font-family: var(--font-heading);
+  font-size: clamp(1.35rem, 1.8vw, 1.75rem);
+  line-height: 1.35;
+  font-weight: 500;
+  margin-bottom: 0.65rem;
+}
+.site-footer h3 {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--gold-primary);
+  margin-bottom: 1rem;
+}
+.site-footer__eyebrow {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--gold-primary);
+  margin-bottom: 0.75rem;
+}
+.site-footer__profession {
+  font-size: 0.9rem;
+  color: var(--gold-primary);
+  margin-bottom: 1rem;
+}
+.site-footer__description,
+.site-footer__contact p {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1rem;
+  line-height: 1.8;
+  max-width: 44ch;
+}
+.site-footer__navigation ul {
+  display: grid;
+  gap: 0.3rem;
+}
+.site-footer__navigation a {
+  display: inline-block;
+  font-size: 0.9rem;
+  min-height: 36px;
+  padding: 0.3rem 0;
+}
+.site-footer a {
+  transition: color 0.18s ease;
+}
+.site-footer a:hover {
+  color: #f3e5d3;
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+}
+.site-footer__email {
+  display: inline-block;
+  color: var(--gold-primary);
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+  max-width: 100%;
+  margin-top: 0.75rem;
+  padding: 0.4rem 0;
+}
+.site-footer__social {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+.site-footer__social a {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(212, 184, 150, 0.4);
+  border-radius: 50%;
+  color: var(--gold-primary);
+}
+.site-footer__bottom {
+  border-top: 1px solid rgba(212, 184, 150, 0.22);
+  padding-top: 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem 2rem;
+  flex-wrap: wrap;
+  align-items: center;
+  font-size: 0.8rem;
+  line-height: 1.7;
+  color: #cab8a4;
+}
+.site-footer__credit span {
+  color: #e8d5c4;
+}
+@media (max-width: 767px) {
+  .site-footer {
+    padding-top: 2.5rem;
+  }
+  .site-footer__grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding-bottom: 2rem;
+  }
+  .site-footer__quote {
+    margin-bottom: 2rem;
+    padding-bottom: 1.75rem;
+  }
+  .site-footer__navigation ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.5rem;
+  }
+  .site-footer__navigation a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+  .site-footer__bottom {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .site-public-shell :is(.articulo-card__contenido, .promo-card__content) {
+    padding: 1.5rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-public-shell
+    :is(
+      .articulo-card,
+      .promo-card,
+      .promo-card__btn,
+      .btn-amazon,
+      .btn-apk
+    ):hover,
+  .site-public-shell .promo-card:hover .promo-card__image img {
+    transform: none;
+  }
+}

@@ -1,0 +1,3 @@
+[functions.upload-editorial-image]
+# JWT verified using auth.getUser in the function; compatible with publishable keys.
+verify_jwt = false

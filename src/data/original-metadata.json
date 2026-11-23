@@ -1,0 +1,32 @@
+{
+  "/": {
+    "title": "Yoeldis Castillo Quiala | Psicólogo y Escritor - Desarrollo Personal",
+    "description": "Yoeldis Castillo Quiala - Licenciado en Psicología y Escritor especializado en desarrollo personal. Descubre libros y artículos para transformar tu vida y comprender tu mente.",
+    "keywords": "psicólogo, desarrollo personal, autoconocimiento, libros de psicología, Yoeldis Castillo, bienestar emocional"
+  },
+  "/sobre-mi.html": {
+    "title": "Sobre Mí | Yoeldis Castillo Quiala - Psicólogo y Escritor",
+    "description": "Conoce a Yoeldis Castillo Quiala, Licenciado en Psicología y Máster en Dirección. Especialista en desarrollo personal, autoconocimiento y comportamiento humano.",
+    "keywords": "sobre Yoeldis Castillo, psicólogo, biografía, desarrollo personal, máster en dirección"
+  },
+  "/libros.html": {
+    "title": "Mis Libros | Yoeldis Castillo Quiala - Desarrollo Personal y Psicología",
+    "description": "Descubre los libros de Yoeldis Castillo Quiala sobre psicología, desarrollo personal y autoconocimiento. Herramientas prácticas para transformar tu vida.",
+    "keywords": "libros de psicología, desarrollo personal, autoconocimiento, Yoeldis Castillo, lectura, bienestar emocional"
+  },
+  "/articulos.html": {
+    "title": "Artículos y Recursos | Yoeldis Castillo Quiala",
+    "description": "Artículos, reflexiones y recursos sobre psicología y desarrollo personal por Yoeldis Castillo Quiala. Ideas para tu crecimiento personal.",
+    "keywords": "artículos de psicología, desarrollo personal, blog, reflexiones, Yoeldis Castillo, crecimiento personal"
+  },
+  "/contacto.html": {
+    "title": "Contacto | Yoeldis Castillo Quiala - Psicólogo y Escritor",
+    "description": "Contacta a Yoeldis Castillo Quiala para consultas sobre sus libros de psicología, desarrollo personal, conferencias o colaboraciones.",
+    "keywords": "contacto Yoeldis Castillo, psicólogo, conferencias, desarrollo personal, consultas"
+  },
+  "/admin.html": {
+    "title": "Panel de Administración | Yoeldis Castillo",
+    "description": "",
+    "keywords": ""
+  }
+}

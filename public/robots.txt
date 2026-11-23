@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /acceso
+Disallow: /auth/
+Disallow: /api/
+Sitemap: https://yoeldiscastillo.com/sitemap.xml
