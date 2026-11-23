@@ -285,7 +285,7 @@ test("administrador crea, previsualiza, edita, recarga y elimina libros, artícu
     if (section === "Libros") {
       await page
         .getByLabel("Archivo de imagen", { exact: true })
-        .setInputFiles("img/autor.jpg");
+        .setInputFiles("public/img/autor.jpg");
       await expect(
         page.getByAltText("Vista previa de la imagen"),
       ).toBeVisible();

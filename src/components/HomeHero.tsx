@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
-import { Icon } from "./Layout";
-import { ResourceLink } from "../pages/PublicPages";
+import { Icon } from "./Icon";
+import { ResourceLink } from "./ResourceLink";
 import { safeUrl } from "../models/content";
 import { useSiteSettings } from "../hooks/useSiteSettings";
 const bundledPortrait = "/img/hero/author-1141.webp";

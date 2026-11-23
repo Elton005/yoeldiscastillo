@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://yoeldiscastillo.com/sitemap.xml

@@ -19,8 +19,6 @@
     "tests",
     "vite.config.ts",
     "playwright.config.ts",
-    "playwright.visual.config.ts",
-    "playwright.hero.config.ts",
-    "playwright.refinement.config.ts"
+    "playwright.visual.config.ts"
   ]
 }

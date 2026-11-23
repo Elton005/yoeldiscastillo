@@ -1,6 +1,5 @@
 // Test double SOLO LOCAL. No implementa ni demuestra RLS real; ver rls.test.ts.
 import http from "node:http";
-import { readFileSync } from "node:fs";
 const initial = {
   site_settings: [{ id: 1, content: {}, revision: 1 }],
   administradores: [
@@ -53,16 +52,6 @@ const initial = {
     },
   ],
 };
-if (process.env.VISUAL_REFERENCE_SNAPSHOT) {
-  const snapshot = JSON.parse(
-    readFileSync(process.env.VISUAL_REFERENCE_SNAPSHOT, "utf8"),
-  );
-  for (const table of ["libros", "articulos", "destacados"]) {
-    if (!Array.isArray(snapshot.tables?.[table]))
-      throw new Error("Invalid public reference");
-    initial[table] = snapshot.tables[table];
-  }
-}
 let records = structuredClone(initial);
 let counter = 100;
 const user = (role) => ({
@@ -228,18 +217,6 @@ http
       (row) => !filter || String(row.id) === filter,
     );
     if (req.method === "GET") {
-      if (
-        process.env.VISUAL_REFERENCE_SNAPSHOT &&
-        table === "libros" &&
-        url.searchParams.get("select")?.split(",").includes("visible") &&
-        !Object.hasOwn(records.libros[0] || {}, "visible")
-      ) {
-        send(
-          { code: "42703", message: "column libros.visible does not exist" },
-          400,
-        );
-        return;
-      }
       for (const flag of ["visible", "publicado", "activo"])
         if (url.searchParams.get(flag) === "eq.true")
           rows = rows.filter((row) => row[flag]);

@@ -2,23 +2,23 @@
 
 ## Hallazgos y medidas
 
-| Hallazgo original | Medida local | Evidencia / límite |
-| --- | --- | --- |
-| Datos y HTML en innerHTML sin sanitizar | React escapa texto; sanitize-html con allowlist en lectura, vista previa y contenido editado | Tests de scripts, handlers, SVG, iframe y protocolos; no certifica todo posible payload |
-| Permisos administrativos comprobados solo por correo en JS | getUser remoto, RPC de rol y RLS basada en membresías privadas | PostgreSQL local ejecuta políticas y rechaza anónimo/lector; esquema real pendiente |
-| Alta/baja directa en administradores | Tabla legacy privada; RPC SECURITY DEFINER con search_path vacío y grants mínimos | Tests negativos, editor sin acceso a roles, guardia del último administrador activo |
-| Escalada mediante rol editable | Fuente de rol independiente de user_metadata | Prueba de servicio con metadatos falsos y pruebas SQL de autopromoción |
-| Carga sin validación | Cliente + Edge verifican MIME, bytes iniciales, 5 MB, identidad y rol; rutas UUID por usuario | Firma binaria compartida probada; Edge completa pendiente de runtime Supabase |
-| Escritura directa a Storage | Fence bloquea INSERT/UPDATE/DELETE de clientes en bucket conocido | SQL local con políticas legacy permisivas |
-| Reordenamiento parcial sin detectar fallos | Campo orden validado y guardado con la publicación | CRUD UI y SQL; no hay ordenación drag-and-drop |
-| Errores SQL y datos internos expuestos | Mensajes genéricos, sin claves ni errores de proveedor en UI | Pruebas de red y revisión de código |
-| Dependencia de imágenes vulnerable | Sharp actualizado a versión corregida disponible | npm audit: ver resultado fechado en TESTING |
+| Riesgo                                                     | Medida local                                                                                  | Evidencia / límite                                                                            |
+| ---------------------------------------------------------- | --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| Datos y HTML en innerHTML sin sanitizar                    | React escapa texto; sanitize-html con allowlist en lectura, vista previa y contenido editado  | Tests de scripts, handlers, SVG, iframe y protocolos; no certifica todo posible payload       |
+| Permisos administrativos comprobados solo por correo en JS | getUser remoto, RPC de rol y RLS basada en membresías privadas                                | PostgreSQL local ejecuta políticas y rechaza anónimo/lector; esquema real pendiente           |
+| Alta/baja directa en administradores                       | Tabla legacy privada; RPC SECURITY DEFINER con search_path vacío y grants mínimos             | Tests negativos, editor sin acceso a roles, guardia del último administrador activo           |
+| Escalada mediante rol editable                             | Fuente de rol independiente de user_metadata                                                  | Prueba de servicio con metadatos falsos y pruebas SQL de autopromoción                        |
+| Carga sin validación                                       | Cliente + Edge verifican MIME, bytes iniciales, 5 MB, identidad y rol; rutas UUID por usuario | Firma binaria compartida probada; Edge completa pendiente de runtime Supabase                 |
+| Escritura directa a Storage                                | Fence bloquea INSERT/UPDATE/DELETE de clientes en bucket conocido                             | SQL local con políticas legacy permisivas                                                     |
+| Reordenamiento parcial sin detectar fallos                 | Campo orden validado y guardado con la publicación                                            | CRUD UI y SQL; no hay ordenación drag-and-drop                                                |
+| Errores SQL y datos internos expuestos                     | Mensajes genéricos, sin claves ni errores de proveedor en UI                                  | Pruebas de red y revisión de código                                                           |
+| Dependencias de procesamiento de imágenes                  | Sharp y versiones fijadas en package-lock.json                                                | Revisar actualizaciones con npm audit; las pruebas funcionales no certifican las dependencias |
 
 ## Credenciales y sesiones
 
-VITE_* es público. El cliente admite clave `sb_publishable_*` o JWT cuyo payload declara rol anon; Supabase sigue validando la clave real. Se rechazan claves secretas o JWT privilegiados en configuración. El escáner de build detecta sb_secret y JWT no anon en los resultados; no es un detector universal de contraseñas o todos los tipos de secretos.
+VITE*\* es público. El cliente admite clave `sb_publishable*\*` o JWT cuyo payload declara rol anon; Supabase sigue validando la clave real. Se rechazan claves secretas o JWT privilegiados en configuración. El escáner de build detecta sb_secret y JWT no anon en los resultados; no es un detector universal de contraseñas o todos los tipos de secretos.
 
-Las tres copias de JWT público del código antiguo se retiraron del archivo legacy activo. El historial base aún contiene esa clave pública. No se encontró service_role/credencial privilegiada en el árbol auditado. No se ha certificado todo el historial Git ni las configuraciones remotas. No se rotó ninguna credencial. Si una revisión posterior encuentra un secreto privilegiado, inventariar usos, sustituirlo en servidor, validar, revocar el anterior y limpiar historial de manera coordinada.
+El código activo no contiene claves de conexión embebidas; la URL y clave pública se configuran por entorno. No se encontró service_role/credencial privilegiada en el árbol auditado. No se ha certificado todo el historial Git ni las configuraciones remotas. No se rotó ninguna credencial. Si una revisión posterior encuentra un secreto privilegiado, inventariar usos, sustituirlo en servidor, validar, revocar el anterior y limpiar historial de manera coordinada.
 
 Auth usa PKCE, callback de origen actual y redirección posterior limitada a rutas internas permitidas, incluido el panel protegido. No acepta next externo. La autenticación se verifica mediante getUser y los roles provienen de PostgreSQL. El SSR es anónimo y nunca hidrata datos privados. Al cambiar identidad o cerrar sesión se limpia la caché administrativa. La renovación del mismo usuario se verifica sin desmontar el editor; una verificación obsoleta no restaura privilegios después del logout. El token del navegador lo gestiona Supabase en su almacenamiento normal; la reducción de XSS es esencial y no equivale a cookies HttpOnly.
 
@@ -50,4 +50,4 @@ Las cabeceras propuestas no se han validado sobre Vercel remoto. Probarlas en pr
 
 ## Publicación de ajustes
 
-La migración `202611220004_site_settings.sql` revoca escritura directa en ajustes y expone una RPC con rol verificado, validación de campos y revisión esperada bajo bloqueo de fila. Conserva historial privado de versiones/actor, legible solo por administradores, y limita publicaciones por usuario. Los textos se muestran como texto escapado, sin HTML ejecutable; imágenes y enlaces usan las validaciones de URL y la función Edge existente. La evidencia SQL local y los límites de staging se describen en `CUSTOMIZATION.md`.
+La migración `202611220004_site_settings.sql` revoca escritura directa en ajustes y expone una RPC con rol verificado, validación de campos y revisión esperada bajo bloqueo de fila. Conserva historial privado de versiones/actor, legible solo por administradores, y limita publicaciones por usuario. Los textos se muestran como texto escapado, sin HTML ejecutable; imágenes y enlaces usan las validaciones de URL y la función Edge existente. La evidencia SQL local y los límites de verificación se describen en `TESTING.md`.

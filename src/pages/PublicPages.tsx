@@ -7,14 +7,13 @@ import { type Content, type Table, safeUrl } from "../models/content";
 import { ContentState } from "../components/ContentState";
 import { AuthorImage } from "../components/AuthorImage";
 import { RichText } from "../components/RichText";
-import { Icon } from "../components/Layout";
-import { useAuth } from "../auth/AuthProvider";
-import { useAuthDialogs } from "../auth/AuthDialogs";
+import { Icon } from "../components/Icon";
 import { useDialog } from "../hooks/useDialog";
 import { sanitizeRichHtml } from "../lib/sanitize";
 import { siteUrl } from "../lib/seo";
 import { useSiteSettings } from "../hooks/useSiteSettings";
 import { HomeHero } from "../components/HomeHero";
+import { ResourceLink } from "../components/ResourceLink";
 export function useContent(table: Table) {
   return useQuery({
     queryKey: contentKey(table),
@@ -23,46 +22,6 @@ export function useContent(table: Table) {
     refetchInterval: 30000,
     retry: 1,
   });
-}
-export function ResourceLink({
-  url,
-  children,
-  requiresLogin = false,
-  newTab = false,
-  className = "btn btn--outline",
-}: {
-  url: string;
-  children: React.ReactNode;
-  requiresLogin?: boolean;
-  newTab?: boolean;
-  className?: string;
-}) {
-  const { user } = useAuth();
-  const { openAuth } = useAuthDialogs();
-  const destination = safeUrl(url);
-  if (!destination) return null;
-  if (requiresLogin && !user)
-    return (
-      <button className={className} onClick={openAuth}>
-        {children}
-      </button>
-    );
-  if (destination.startsWith("/"))
-    return (
-      <Link to={destination} className={className}>
-        {children}
-      </Link>
-    );
-  return (
-    <a
-      href={destination}
-      className={className}
-      target={newTab || requiresLogin ? "_blank" : undefined}
-      rel="noopener noreferrer"
-    >
-      {children}
-    </a>
-  );
 }
 function htmlOrText(text: string, className?: string) {
   return /<\/?[a-z][^>]*>/i.test(text) ? (

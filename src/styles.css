@@ -1,7 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Montserrat:wght@300;400;500;600&display=swap");
 @import "@fortawesome/fontawesome-free/css/all.min.css";
-@import "./styles/original.css";
-@import "./styles/original-admin.css";
+@import "./styles/public.css";
+@import "./styles/admin.css";
 @import "./styles/hero.css";
 @import "./styles/refinements.css";
 
@@ -610,9 +610,6 @@ main:focus {
   .articulos-grid {
     grid-template-columns: 1fr;
   }
-  .hero-split {
-    overflow: clip;
-  }
   .contacto__email {
     max-width: 100%;
   }
@@ -657,9 +654,6 @@ main:focus {
 }
 .editor-panel {
   scroll-margin-top: 100px;
-}
-.hero-split {
-  overflow: clip;
 }
 @media (max-width: 767px) {
   .editor-pair {
@@ -763,13 +757,6 @@ main:focus {
 }
 .settings-preview > .site-editor__hint {
   padding: 0 1rem 1rem;
-}
-.settings-preview .hero-split {
-  min-height: 0;
-  padding: 3rem 0;
-}
-.settings-preview .hero-split__container {
-  min-height: 0;
 }
 .settings-preview .contacto-page {
   min-height: 0;

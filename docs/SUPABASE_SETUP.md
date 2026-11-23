@@ -8,7 +8,7 @@ La consola o un operador autorizado debe ejecutar `inspection.sql` y proporciona
 
 ## Contraste de esquema y migración
 
-El contrato inferido está en `AUDIT.md`. Confirmar tipos/defaults de id y orden, nombres de campos, fecha_publicacion, creado_en, publicado/activo y cualquier visible preexistente. La migración requiere las cuatro tablas conocidas y el bucket existente; fallará si faltan y no los recreará suponiendo datos. Las referencias a auth.users usan el esquema estándar confirmado, banned_until y deleted_at: comprobarlo en la instancia destino.
+El contrato del cliente está en `src/models/content.ts` y `src/services/content.ts`. Confirmar tipos/defaults de id y orden, nombres de campos, fecha_publicacion, creado_en, publicado/activo y cualquier visible preexistente. La migración requiere las cuatro tablas conocidas y el bucket existente; fallará si faltan y no los recreará suponiendo datos. Las referencias a auth.users usan el esquema estándar confirmado, banned_until y deleted_at: comprobarlo en la instancia destino.
 
 Aplicar `migrations/202611220001_editorial_security.sql` y `migrations/202611220002_editorial_order.sql` primero a staging. Cada archivo es transaccional y no añade columnas al catálogo original. La ampliación en `optional/202611220003_book_visibility.sql` requiere una decisión separada y no es necesaria para esta migración. No ejecutar `test-fixture.sql` fuera de una base vacía de pruebas: sus políticas deliberadamente abiertas sirven para probar que los fences las restringen. No importar ese fixture a un proyecto real.
 

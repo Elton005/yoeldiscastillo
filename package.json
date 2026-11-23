@@ -8,14 +8,15 @@
   },
   "scripts": {
     "dev": "vite --host 127.0.0.1",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "npm run check:architecture && tsc --noEmit",
     "build": "npm run typecheck && vite build && vite build --ssr src/entry-server.tsx --outDir server && node scripts/finalize-build.mjs && node scripts/check-bundle.mjs",
     "preview": "node scripts/serve.mjs",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "test:visual": "playwright test --config playwright.visual.config.ts",
+    "test:visual": "playwright test --config playwright.visual.config.ts && node scripts/visual-report.mjs",
     "test:permissions": "node scripts/test-permissions.mjs",
-    "images": "node scripts/optimize-images.mjs"
+    "images": "node scripts/optimize-images.mjs && node scripts/prepare-hero.mjs && node scripts/prepare-seated-portrait.mjs",
+    "check:architecture": "node scripts/check-architecture.mjs"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.5.1",

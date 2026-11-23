@@ -1,6 +1,7 @@
 import sharp from "sharp";
-import { writeFile } from "node:fs/promises";
-const input = "assets/refinement-originals/author-seated.png";
+import { mkdir } from "node:fs/promises";
+const input = "assets/source/author-seated.png";
+await mkdir("public/img/hero", { recursive: true });
 const metadata = await sharp(input).metadata();
 const { data, info } = await sharp(input)
   .ensureAlpha()
@@ -32,25 +33,6 @@ for (const width of [560, 840, 1122]) {
     bytes: output.size,
   });
 }
-await writeFile(
-  "public/img/hero/seated-manifest.json",
-  JSON.stringify(
-    {
-      original: input,
-      width: info.width,
-      height: info.height,
-      hasAlpha: metadata.hasAlpha,
-      transparent,
-      partial,
-      opaque,
-      method:
-        "Direct responsive WebP encoding of supplied seated cutout; no generative edits or changes to pose/face.",
-      variants,
-    },
-    null,
-    2,
-  ),
-);
 console.log(
   JSON.stringify({
     width: info.width,

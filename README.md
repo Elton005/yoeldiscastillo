@@ -1,46 +1,52 @@
 # Yoeldis Castillo Quiala
 
-Migración fiel de la web original y su panel administrativo con React, TypeScript estricto, Vite, React Router, TanStack Query y Supabase JS v2. El frontend anterior se conserva en `legacy/` como referencia, fuera del despliegue. **No se ha publicado ni modificado Supabase remoto.**
+Sitio y panel administrativo en React + TypeScript estricto, Vite y Supabase. El repositorio contiene una sola implementación activa; las rutas públicas `.html` pertenecen a React Router, no a archivos HTML independientes.
 
-El panel incorpora **Página web** para editar textos, fotografías, contacto y redes, con vista previa y publicación versionada. El último refinamiento utiliza el recurso sentado del autor en escritorio y conserva el retrato de pie en tableta/móvil, con un footer editorial nuevo. Implementación y capturas en [VISUAL_REFINEMENT.md](docs/VISUAL_REFINEMENT.md); preparación anterior de recursos en [HERO.md](docs/HERO.md); activación y uso del panel en [CUSTOMIZATION.md](docs/CUSTOMIZATION.md).
+## Uso local
 
-Se conserva la identidad roble/dorado, las fuentes Cinzel/Montserrat, los fondos, textos, tarjetas y modales originales. Consulta la [comparación visual y la corrección de dirección](docs/VISUAL_FIDELITY.md).
-
-## Arranque local
-
-Requiere Node 22.12 o posterior; validado con Node 24.
+Node 22.12 o posterior (validado con Node 24).
 
 ```powershell
 npm ci
 Copy-Item .env.example .env.local
-# Configurar únicamente URL y clave pública de un Supabase de desarrollo autorizado.
+# Configurar URL y clave pública de Supabase en .env.local.
 npm run dev
 ```
 
-La ausencia de configuración se muestra de forma explícita. No se usan datos ficticios como respaldo del catálogo. Las pruebas tienen su propio backend local, aislado de la aplicación y de producción.
+La configuración del cliente solo admite claves públicas. Sin conexión configurada, el catálogo muestra su estado de error; no se sustituye por datos ficticios. Los datos de prueba viven únicamente en `tests/fixtures`.
+
+## Comprobaciones
 
 ```powershell
+npm run check:architecture
 npm test
 npm run test:e2e
+npm run test:visual
 npm run build
 npm run preview
 ```
 
-`build` comprueba tipos, genera cliente y SSR y examina credenciales Supabase en ambos resultados. `preview` sirve el resultado SSR en `http://127.0.0.1:4173`. `dist/` contiene recursos estáticos; `server/` contiene renderer y plantilla. No publicar `dist/` como una SPA: necesita la función `api/render.mjs` y `vercel.json`. La plantilla se aparta del directorio estático para que la raíz alcance SSR.
+`check:architecture` detecta imports relativos rotos, ciclos, módulos sin uso y dependencias entre capas incorrectas. `build` incluye esa comprobación, TypeScript, compilación cliente/SSR y escáner de claves. `preview` sirve el resultado local en el puerto 4173.
 
-## Funcionalidad
+## Organización
 
-- Rutas públicas antiguas, nuevas fichas `/libros/:id` y `/articulos/:id`, biografía y promoción del autor invitado conservadas.
-- Google y correo/contraseña, registro, cierre de sesión y verificación de usuario y membresía. Google necesita URLs autorizadas en Supabase.
-- Panel `/admin.html` con cabecera y pestañas originales: CRUD, búsqueda, filtros, orden por flechas y número, borradores, vista previa, portadas y editor enriquecido. La visibilidad independiente de libros es opcional y no exige añadir columnas al esquema original.
-- Membresías de editor y administrador mediante RPC; el último administrador activo no puede retirarse o degradarse por esa operación.
-- Cargas mediante Edge Function con límites y validación de firma/MIME/tamaño. Requiere instalar esa función en staging.
-- SSR público, metadatos y sitemap dinámico, HTML saneado, rutas y estados HTTP coherentes.
+| Carpeta                                              | Responsabilidad                                           |
+| ---------------------------------------------------- | --------------------------------------------------------- |
+| `src/pages`                                          | Rutas y composición pública                               |
+| `src/components`                                     | Componentes reutilizables, hero, cabecera y footer        |
+| `src/auth`                                           | Sesiones, formulario de acceso y diálogos                 |
+| `src/admin`                                          | Gestión de contenido, miembros y personalización          |
+| `src/services`, `src/models`, `src/hooks`, `src/lib` | Datos, validación y utilidades                            |
+| `src/styles`                                         | Tema público, administración, hero y detalles editoriales |
+| `public/img`                                         | Recursos públicos y variantes optimizadas                 |
+| `assets/source`                                      | Tres imágenes fuente para regenerar el hero               |
+| `supabase`                                           | Migraciones, función de imágenes y pruebas de permisos    |
+| `tests`, `scripts`                                   | Verificación y herramientas del proyecto                  |
 
-## Antes de cualquier despliegue
+`index.html` es la única plantilla fuente de la aplicación. `src/main.tsx` es la entrada del navegador; `src/entry-server.tsx` genera HTML público. La compilación crea `dist/` y `server/`; son artefactos ignorados, no versiones adicionales del código. El adaptador HTTP se mantiene separado en `api/`.
 
-Leer [auditoría](docs/AUDIT.md), [migración](docs/MIGRATION.md), [configuración Supabase](docs/SUPABASE_SETUP.md), [seguridad](docs/SECURITY.md) y [resultados de pruebas](docs/TESTING.md). El contrato SQL procede del JavaScript antiguo y está probado sobre un fixture de PostgreSQL; **todavía no está contrastado con el esquema real**. No aplicar la migración a producción durante la convivencia con el panel antiguo.
+El hero utiliza el recurso sentado desde 1366 px y el retrato de pie en pantallas menores. Se conserva la estética marrón/dorada y el footer con firma de Elton Olivares. El panel mantiene CRUD, búsquedas, filtros, orden, imágenes, borradores, editor enriquecido, miembros y contenido personalizable.
 
-Las credenciales de staging se configuran en `.env.staging.local` ignorado por Git o en un gestor de secretos. Nunca pegarlas en chats, informes, commits o capturas. `npm run test:permissions` requiere autorización explícita mediante esa configuración y bloquea el identificador del proyecto original.
+`npm run images` regenera favicon y WebP a partir de las fuentes conservadas. No se modifica la identidad del autor ni las portadas.
 
-Documentación adicional: [arquitectura](docs/ARCHITECTURE.md), [reversión](supabase/rollback/README.md) y [entrega](docs/DELIVERY.md).
+Documentación: [arquitectura](docs/ARCHITECTURE.md), [personalización](docs/CUSTOMIZATION.md), [Supabase](docs/SUPABASE_SETUP.md), [migraciones](docs/MIGRATION.md), [seguridad](docs/SECURITY.md) y [pruebas](docs/TESTING.md).

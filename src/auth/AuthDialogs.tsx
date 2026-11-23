@@ -11,7 +11,7 @@ import {
 import { createPortal } from "react-dom";
 import { useAuth } from "./AuthProvider";
 const Form = lazy(() =>
-  import("../pages/Access").then((module) => ({ default: module.AuthForm })),
+  import("./AuthForm").then((module) => ({ default: module.AuthForm })),
 );
 const Dialogs = createContext({ openAuth: () => {} });
 export const useAuthDialogs = () => useContext(Dialogs);

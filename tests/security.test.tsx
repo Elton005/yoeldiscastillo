@@ -4,7 +4,7 @@ import { sanitizeRichHtml } from "../src/lib/sanitize";
 import { safeUrl, bookSchema, defaults } from "../src/models/content";
 import { RichText } from "../src/components/RichText";
 import { validImageBytes } from "../supabase/functions/_shared/image";
-import { safeNext } from "../src/pages/Access";
+import { safeNext } from "../src/auth/actions";
 describe("Contenido y navegación seguros", () => {
   it("elimina scripts, handlers, SVG, iframes y protocolos ejecutables conservando el texto", () => {
     const input =

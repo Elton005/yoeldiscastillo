@@ -23,7 +23,7 @@ import { uploadImage } from "../services/media";
 import { safeUrl } from "../models/content";
 import { About, Articles, Books, Contact } from "../pages/PublicPages";
 import { HomeHero } from "../components/HomeHero";
-import { Icon } from "../components/Layout";
+import { Icon } from "../components/Icon";
 
 export default function SiteSettingsEditor({
   onDirtyChange,

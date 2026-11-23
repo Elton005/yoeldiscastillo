@@ -6,6 +6,7 @@ import { db } from "../lib/supabase";
 import { useSiteSettings } from "../hooks/useSiteSettings";
 import { safeUrl } from "../models/content";
 import { SiteFooter } from "./SiteFooter";
+import { Icon } from "./Icon";
 const navigation = [
   ["/", "INICIO"],
   ["/sobre-mi.html", "SOBRE MÍ"],
@@ -13,21 +14,10 @@ const navigation = [
   ["/articulos.html", "ARTÍCULOS"],
   ["/contacto.html", "CONTACTO"],
 ];
-export function Icon({
-  name,
-  brand = false,
-}: {
-  name: string;
-  brand?: boolean;
-}) {
-  return (
-    <i className={`${brand ? "fab" : "fas"} fa-${name}`} aria-hidden="true" />
-  );
-}
-function Social({ footer = false }: { footer?: boolean }) {
+function Social() {
   const settings = useSiteSettings();
   return (
-    <div className={footer ? "footer-social" : "social social--desktop"}>
+    <div className="social social--desktop">
       {[
         ["facebook-f", "Facebook", settings.facebook],
         ["instagram", "Instagram", settings.instagram],
@@ -35,7 +25,6 @@ function Social({ footer = false }: { footer?: boolean }) {
       ].map(([name, label, url]) => (
         <a
           key={name}
-          className={footer ? "social-link" : undefined}
           role="link"
           aria-label={label}
           href={safeUrl(url) || undefined}
@@ -48,21 +37,11 @@ function Social({ footer = false }: { footer?: boolean }) {
           <Icon name={name} brand />
         </a>
       ))}
-      {footer && (
-        <a
-          href={`mailto:${settings.contactEmail}`}
-          className="social-link"
-          aria-label="Email"
-        >
-          <Icon name="envelope" />
-        </a>
-      )}
     </div>
   );
 }
 function Shell() {
   const publicHeader = useRef<HTMLElement>(null);
-  const settings = useSiteSettings();
   const [open, setOpen] = useState(false);
   const [error, setError] = useState("");
   const toggle = useRef<HTMLButtonElement>(null);
@@ -228,15 +207,6 @@ function Shell() {
       ) : (
         <footer className="footer">
           <div className="container">
-            {home && !isAdmin && (
-              <>
-                <blockquote className="footer-quote">
-                  "{settings.footerQuote}"
-                </blockquote>
-                <Social footer />
-                <div className="footer-divider" />
-              </>
-            )}
             <p className="footer__pre-text">
               Experiencia interactiva desarrollada por
             </p>

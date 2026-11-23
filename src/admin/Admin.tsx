@@ -13,7 +13,7 @@ import {
 
 import { tables, type Content, type Table, safeUrl } from "../models/content";
 import { ContentState } from "../components/ContentState";
-import { Icon } from "../components/Layout";
+import { Icon } from "../components/Icon";
 import ContentEditor from "./ContentEditor";
 import Memberships from "./Memberships";
 import SiteSettingsEditor from "./SiteSettingsEditor";

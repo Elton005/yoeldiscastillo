@@ -5,7 +5,7 @@ No hay un `down.sql` automático: desconocemos las políticas, grants, triggers 
 1. Si la transacción de migración falla, PostgreSQL revierte sus cambios. No continuar desde un error parcial.
 2. Si la prueba en staging falla tras `commit`, conservar `editor_memberships`, `editor_role_audit` y `editor_upload_limits` con sus datos. Conservar también `libros.visible` si se aplicó su ampliación opcional; no forma parte de la migración básica. No eliminar tablas ni registros para volver al frontend anterior.
 3. En una ventana autorizada, restaurar los grants, flags RLS, políticas y límites del bucket **desde el snapshot revisado**. Quitar solo las políticas `yc_*` y triggers `yc_*` introducidos por esta migración después de verificar que las políticas restauradas son seguras. Las nuevas tablas permanecerán privadas.
-4. Revertir la versión de frontend mediante el despliegue anterior o un checkout separado del commit `0f6ab9b`. `legacy/` es referencia auditada con claves públicas retiradas; no es un destino público.
+4. Recuperar una revisión compatible del frontend desde Git, tras comprobar el contrato de ajustes y las funciones que necesita. El repositorio no conserva copias paralelas del sitio.
 5. Repetir lectura pública, login, CRUD y pruebas negativas. No volver a publicar el panel antiguo si sus permisos permiten escritura sin autorización.
 
 Los archivos originales y el respaldo local permiten recuperar código y recursos; no son un respaldo de PostgreSQL o Storage. No afirmar que se dispone de un respaldo de datos remotos sin haberlo obtenido.

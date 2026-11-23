@@ -12,7 +12,7 @@ import {
 import { saveContent } from "../services/content";
 import { uploadImage } from "../services/media";
 import { RichText } from "../components/RichText";
-import { Icon } from "../components/Layout";
+import { Icon } from "../components/Icon";
 const RichEditor = lazy(() => import("./RichEditor"));
 export default function ContentEditor({
   table,

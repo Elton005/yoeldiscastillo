@@ -5,8 +5,7 @@ test("hero, páginas públicas, tarjetas y footer", async ({
   request,
 }, info) => {
   await request.post("http://127.0.0.1:54329/test/reset");
-  const before = process.env.REFINEMENT_PHASE === "before";
-  const folder = `.qa/refinement/${before ? "before" : "after"}/${info.project.name}`;
+  const folder = `.qa/visual/${info.project.name}`;
   await mkdir(folder, { recursive: true });
   const metrics: unknown[] = [];
   const errors: string[] = [];
@@ -59,7 +58,7 @@ test("hero, páginas públicas, tarjetas y footer", async ({
         () => document.documentElement.scrollWidth <= innerWidth,
       ),
     ).toBe(true);
-    if (!before) {
+    {
       const footer = page.locator(".site-footer");
       await expect(footer).toContainText("Desarrollado por Elton Olivares");
       await expect(footer).toContainText(
@@ -74,7 +73,7 @@ test("hero, páginas públicas, tarjetas y footer", async ({
       for (const link of await footer.locator("a[href]").all())
         expect(await link.getAttribute("href")).not.toBe("#");
     }
-    if (name === "inicio" && !before) {
+    if (name === "inicio") {
       const hero = page.locator(".editorial-hero");
       const layout = await hero.evaluate((section) => {
         const image = section.querySelector<HTMLImageElement>(
