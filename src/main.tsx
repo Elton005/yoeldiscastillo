@@ -5,6 +5,7 @@ import {
   QueryClientProvider,
   HydrationBoundary,
 } from "@tanstack/react-query";
+import { Analytics } from "@vercel/analytics/react";
 import { AuthProvider } from "./auth/AuthProvider";
 import { App } from "./App";
 import "./styles.css";
@@ -22,6 +23,7 @@ const app = (
         </AuthProvider>
       </BrowserRouter>
     </HydrationBoundary>
+    <Analytics />
   </QueryClientProvider>
 );
 if (state) hydrateRoot(root, app);
