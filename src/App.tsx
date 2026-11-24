@@ -1,5 +1,6 @@
-import { lazy, Suspense } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { lazy, Suspense, useEffect, useRef } from "react";
+import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
+import { authReturnDetected } from "./lib/supabase";
 import { Layout } from "./components/Layout";
 import { Seo } from "./components/Seo";
 import {
@@ -16,9 +17,26 @@ const Access = lazy(() => import("./pages/Access"));
 const Callback = lazy(() =>
   import("./pages/Access").then((module) => ({ default: module.AuthCallback })),
 );
+function OAuthLanding() {
+  const navigate = useNavigate();
+  const handled = useRef(false);
+  useEffect(() => {
+    if (handled.current) return;
+    handled.current = true;
+    // Also recover a provider fallback to Site URL or a legacy /admin.html
+    // return. Run after hydration; the SDK remains the only PKCE-code owner.
+    if (
+      authReturnDetected &&
+      !/\/auth\/callback\/?$/.test(window.location.pathname)
+    )
+      navigate("/auth/callback", { replace: true });
+  }, [navigate]);
+  return null;
+}
 export function App() {
   return (
     <>
+      <OAuthLanding />
       <Seo />
       <Suspense
         fallback={

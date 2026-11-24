@@ -391,7 +391,7 @@ function Dashboard() {
   );
 }
 export default function Admin() {
-  const { loading, user, role } = useAuth();
+  const { loading, user, role, error, refresh } = useAuth();
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   if (loading)
@@ -400,7 +400,26 @@ export default function Admin() {
         <p role="status">Verificando acceso…</p>
       </section>
     );
-  if (user && role) return <Dashboard />;
+  if (!error && user && role) return <Dashboard />;
+  if (error)
+    return (
+      <section className="contacto-page admin-access">
+        <div className="contacto-card">
+          <h1 className="contacto__title">No se pudo verificar el acceso</h1>
+          <p className="contacto__text" role="alert">
+            {error.message}
+          </p>
+          <button className="btn btn--solid" onClick={() => void refresh()}>
+            Reintentar verificación
+          </button>
+          {error.kind !== "permissions" && (
+            <Link className="email-access" to="/acceso?next=%2Fadmin.html">
+              Volver a iniciar sesión
+            </Link>
+          )}
+        </div>
+      </section>
+    );
   return (
     <section id="loginScreen" className="contacto-page admin-access">
       <div className="contacto-card">
@@ -411,23 +430,32 @@ export default function Admin() {
             ? "Tu cuenta no tiene autorización para administrar este sitio."
             : "Esta área es exclusiva para administradores autorizados."}
         </p>
-        <button
-          className="btn btn--solid"
-          disabled={busy}
-          onClick={() => {
-            setBusy(true);
-            void googleLogin("/admin.html").catch(() => {
-              setBusy(false);
-              setMessage("No se pudo iniciar el acceso con Google.");
-            });
-          }}
-        >
-          <Icon name="google" brand />
-          Iniciar sesión con Google
-        </button>
-        <Link className="email-access" to="/acceso?next=%2Fadmin.html">
-          Acceder con correo
-        </Link>
+        {!user && (
+          <>
+            <button
+              className="btn btn--solid"
+              disabled={busy}
+              onClick={() => {
+                setBusy(true);
+                void googleLogin("/admin.html").catch(() => {
+                  setBusy(false);
+                  setMessage("No se pudo iniciar el acceso con Google.");
+                });
+              }}
+            >
+              <Icon name="google" brand />
+              Iniciar sesión con Google
+            </button>
+            <Link className="email-access" to="/acceso?next=%2Fadmin.html">
+              Acceder con correo
+            </Link>
+          </>
+        )}
+        {user && (
+          <Link className="email-access" to="/acceso">
+            Ver mi cuenta
+          </Link>
+        )}
         {message && (
           <p className="notice" role="alert">
             {message}

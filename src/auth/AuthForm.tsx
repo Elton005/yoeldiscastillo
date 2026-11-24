@@ -5,7 +5,12 @@ import { z } from "zod";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { db, supabase } from "../lib/supabase";
 import { useAuth } from "./AuthProvider";
-import { googleLogin, safeNext } from "./actions";
+import {
+  callbackUrl,
+  googleLogin,
+  rememberAuthNext,
+  safeNext,
+} from "./actions";
 import { useDialog } from "../hooks/useDialog";
 import { Icon } from "../components/Icon";
 
@@ -18,7 +23,7 @@ export function AuthForm({ onClose }: { onClose: () => void }) {
   const [registering, setRegistering] = useState(false);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
-  const { user, role, loading } = useAuth();
+  const { user, role, loading, error: authError, refresh } = useAuth();
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const ref = useDialog(onClose);
@@ -54,7 +59,9 @@ export function AuthForm({ onClose }: { onClose: () => void }) {
         >
           <Icon name="times" />
         </button>
-        {user ? (
+        {loading ? (
+          <p role="status">Verificando tu sesión…</p>
+        ) : user ? (
           <div className="modal-auth__form account-profile">
             <div className="profile-avatar-circle">
               <Icon name="user" />
@@ -144,13 +151,14 @@ export function AuthForm({ onClose }: { onClose: () => void }) {
               onSubmit={handleSubmit(async (values) => {
                 setMessage("");
                 try {
+                  if (registering) rememberAuthNext(next);
                   const result = registering
                     ? await db().auth.signUp({
                         email: values.email,
                         password: values.password,
                         options: {
                           data: { nombre: values.nombre },
-                          emailRedirectTo: `${window.location.origin}${import.meta.env.BASE_URL}auth/callback`,
+                          emailRedirectTo: callbackUrl(),
                         },
                       })
                     : await db().auth.signInWithPassword({
@@ -248,6 +256,14 @@ export function AuthForm({ onClose }: { onClose: () => void }) {
           <p className="notice" role="alert">
             La conexión todavía no está configurada.
           </p>
+        )}
+        {authError && (
+          <div className="notice">
+            <p role="alert">{authError.message}</p>
+            <button className="btn btn--outline" onClick={() => void refresh()}>
+              Reintentar verificación
+            </button>
+          </div>
         )}
         {message && (
           <p className="notice" role="status">

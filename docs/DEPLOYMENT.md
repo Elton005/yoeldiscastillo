@@ -40,6 +40,8 @@ Las rutas públicas `.html`, detalles publicados durante la compilación, acceso
 
 ## Auth y backend
 
+Si Google completa el acceso pero el panel vuelve a ofrecer login, consultar [AUTH_RECOVERY.md](AUTH_RECOVERY.md). Se comprobó que la API publicada no expone `current_editor_role()` (`PGRST202`); publicar el frontend no sustituye la revisión de migraciones y membresías legítimas del backend.
+
 Permitir en Supabase las URLs exactas de callback de los dominios publicados:
 
 - Vercel/dominio: `https://www.yoeldiscastillo.com/auth/callback`.

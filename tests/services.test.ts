@@ -21,6 +21,25 @@ import {
 import { defaults } from "../src/models/content";
 beforeEach(() => vi.clearAllMocks());
 describe("Denegación administrativa en servicios cliente", () => {
+  it("distingue fallos de sesión/permisos y no escribe contenido en ninguno", async () => {
+    mocks.getUser.mockResolvedValue({
+      data: { user: null },
+      error: { message: "network" },
+    });
+    await expect(deleteContent("libros", 1)).rejects.toThrow(
+      "validar la sesión",
+    );
+    expect(mocks.rpc).not.toHaveBeenCalled();
+    mocks.getUser.mockResolvedValue({
+      data: { user: { id: "editor" } },
+      error: null,
+    });
+    mocks.rpc.mockResolvedValue({ data: null, error: { code: "PGRST202" } });
+    await expect(
+      saveContent("libros", { ...defaults(), titulo: "Prueba" }),
+    ).rejects.toThrow("verificar los permisos");
+    expect(mocks.from).not.toHaveBeenCalled();
+  });
   it("no consulta tablas privadas ni modifica contenido sin sesión", async () => {
     mocks.getUser.mockResolvedValue({ data: { user: null }, error: null });
     await expect(listContent("libros", true)).rejects.toThrow("Inicia sesión");

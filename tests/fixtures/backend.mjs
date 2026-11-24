@@ -1,5 +1,6 @@
 // Test double SOLO LOCAL. No implementa ni demuestra RLS real; ver rls.test.ts.
 import http from "node:http";
+import { createHash, randomUUID } from "node:crypto";
 const initial = {
   site_settings: [{ id: 1, content: {}, revision: 1 }],
   administradores: [
@@ -54,6 +55,8 @@ const initial = {
 };
 let records = structuredClone(initial);
 let counter = 100;
+let oauthScenario = { role: "admin", landing: null, roleError: false };
+const oauthCodes = new Map();
 const user = (role) => ({
   id:
     role === "admin"
@@ -114,8 +117,25 @@ http
     if (url.pathname === "/test/reset") {
       records = structuredClone(initial);
       counter = 100;
+      oauthScenario = { role: "admin", landing: null, roleError: false };
+      oauthCodes.clear();
       send({ ok: true });
       return;
+    }
+    if (url.pathname === "/test/oauth" && req.method === "POST") {
+      oauthScenario = { ...oauthScenario, ...body };
+      send({ ok: true }); return;
+    }
+    // Local provider simulation exercises the real browser SDK and its PKCE
+    // verifier. It does not contact Google or demonstrate production OAuth.
+    if (url.pathname === "/auth/v1/authorize") {
+      const target = new URL(url.searchParams.get("redirect_to"));
+      if (!["127.0.0.1", "localhost"].includes(target.hostname)) { send({ message: "Local only" }, 400); return; }
+      const code = randomUUID();
+      oauthCodes.set(code, { challenge: url.searchParams.get("code_challenge"), role: oauthScenario.role });
+      if (oauthScenario.landing) target.pathname = oauthScenario.landing;
+      target.searchParams.set("code", code);
+      res.writeHead(302, { Location: target.href }); res.end(); return;
     }
     if (url.pathname === "/test/scenario" && req.method === "POST") {
       if (body.scenario === "empty") {
@@ -128,7 +148,14 @@ http
       send({ ok: true }); return;
     }
     if (url.pathname === "/auth/v1/token") {
-      const kind = body.email?.startsWith("admin") ? "admin" : "reader";
+      let kind = body.email?.startsWith("admin") || body.refresh_token === "refresh-admin" ? "admin" : "reader";
+      if (url.searchParams.get("grant_type") === "pkce") {
+        const issued = oauthCodes.get(body.auth_code);
+        const challenge = createHash("sha256").update(body.code_verifier || "").digest("base64url");
+        if (!issued || issued.challenge !== challenge) { send({ error_code: "bad_code_verifier", msg: "Invalid local PKCE verifier" }, 400); return; }
+        oauthCodes.delete(body.auth_code);
+        kind = issued.role;
+      }
       send({
         access_token: `fixture-${kind}`,
         refresh_token: `refresh-${kind}`,
@@ -148,6 +175,7 @@ http
       return;
     }
     if (url.pathname === "/rest/v1/rpc/current_editor_role") {
+      if (oauthScenario.roleError) { send({ code: "PGRST202", message: "Local role function unavailable" }, 404); return; }
       send(role === "admin" ? "admin" : null);
       return;
     }

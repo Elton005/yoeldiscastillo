@@ -20,8 +20,8 @@ export const getBookVisibilitySupport = () => bookVisibilitySupported;
 function missingVisibility(error: { code?: string; message?: string } | null) {
   return Boolean(
     error &&
-      ["42703", "PGRST204"].includes(error.code || "") &&
-      /\bvisible\b/i.test(error.message || ""),
+    ["42703", "PGRST204"].includes(error.code || "") &&
+    /\bvisible\b/i.test(error.message || ""),
   );
 }
 export async function listContent(table: Table, admin = false) {
@@ -71,11 +71,18 @@ export async function requireEditor(adminOnly = false) {
     data: { user },
     error,
   } = await client.auth.getUser();
-  if (error || !user)
-    throw new Error("Inicia sesión con una cuenta autorizada.");
+  if (error)
+    throw new Error("No se pudo validar la sesión. Reintenta la operación.");
+  if (!user) throw new Error("Inicia sesión con una cuenta autorizada.");
   const result = await client.rpc("current_editor_role");
   if (
     result.error ||
+    (result.data !== null && !["admin", "editor"].includes(result.data))
+  )
+    throw new Error(
+      "No se pudieron verificar los permisos. Reintenta la operación.",
+    );
+  if (
     !["admin", "editor"].includes(result.data) ||
     (adminOnly && result.data !== "admin")
   )

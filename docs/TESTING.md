@@ -32,9 +32,9 @@ Las capturas visuales actuales y el informe se generan en `.qa/visual/`, sin con
 
 Cierre de auditoría: 24 de noviembre de 2026.
 
-- ESLint y TypeScript: sin errores; arquitectura con 36 módulos usados y sin ciclos.
-- Unitarias/SQL: 64 pruebas aprobadas en 12 archivos.
-- E2E: 33 pruebas aprobadas en la última ejecución completa en escritorio, tablet y móvil.
+- ESLint y TypeScript: sin errores; arquitectura con 37 módulos usados y sin ciclos.
+- Unitarias/SQL: 74 pruebas aprobadas en 13 archivos tras la corrección de autenticación.
+- E2E: 51 pruebas aprobadas en la última ejecución completa en escritorio, tablet y móvil, incluidas 18 de OAuth/PKCE simulado.
 - Build React/Vite: correcto, con generación de metadatos/HTML/sitemap estáticos y escáner de claves.
 - Builds de Vercel/Pages aislados: ambas salidas verificadas en navegador, siete entradas por plataforma, navegación y detalle; sin errores de hidratación.
 - Auditoría visual: las doce resoluciones solicitadas, horizontal, altura reducida, texto al 200 % y reflow equivalente; 152 casos registrados, 123 capturas antes y 158 después. Sin geometría desbordada ni excepciones JS. Axe: 16 análisis de la muestra posterior sin infracciones detectadas.
@@ -42,6 +42,8 @@ Cierre de auditoría: 24 de noviembre de 2026.
 - `npm audit --json`: 0 vulnerabilidades reportadas.
 
 Informe completo, riesgos y comparador: [FINAL_AUDIT.md](FINAL_AUDIT.md). Reproducción de capturas con `npm run audit:ui`, comparación de rendimiento con `npm run audit:performance`, informe con `node scripts/audit-report.mjs`. Las suites comparten el backend 54329 y deben ejecutarse secuencialmente.
+
+La corrección posterior de autenticación y sus pruebas PKCE se documentan en [AUTH_RECOVERY.md](AUTH_RECOVERY.md). Google se simula exclusivamente en loopback; no se certifica el acceso real sin cuentas/configuración de staging autorizadas.
 
 ## Alcance de la evidencia
 

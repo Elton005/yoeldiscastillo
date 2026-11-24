@@ -81,6 +81,13 @@ try {
     const errors = [],
       badImages = [];
     page.on("pageerror", (e) => errors.push(e.message));
+    page.on("console", (message) => {
+      if (
+        message.type() === "error" &&
+        /hydration|hydrated|didn.t match/i.test(message.text())
+      )
+        errors.push("Hydration mismatch in compiled document");
+    });
     page.on("response", (r) => {
       if (r.url().includes("/img/") && r.status() !== 200)
         badImages.push(r.url());
@@ -131,11 +138,22 @@ try {
     await page
       .getByRole("heading", { name: "Conócete", exact: true })
       .waitFor();
+    await page.evaluate(() =>
+      sessionStorage.setItem("auth-next", "/admin.html"),
+    );
+    await page.goto(origin + base + "auth/callback/");
+    await page.getByText(/No se pudo verificar el acceso/).waitFor();
+    assert.equal(
+      await page
+        .getByRole("link", { name: "Volver a iniciar sesión" })
+        .getAttribute("href"),
+      base + "acceso?next=%2Fadmin.html",
+    );
     assert.deepEqual(errors, []);
     assert.deepEqual(badImages, []);
     await context.close();
     console.log(
-      `${name}: 7 entradas directas, navegación React, imágenes, catálogo y detalle correctos.`,
+      `${name}: 7 entradas directas, navegación React, imágenes, catálogo, detalle y callback hidratado con destino persistido correctos.`,
     );
   }
 } finally {

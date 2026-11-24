@@ -10,104 +10,159 @@ import {
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
 import { useQueryClient } from "@tanstack/react-query";
-type AuthState = {
+import { recoverIdentity } from "./session";
+import { clearAuthNext } from "./actions";
+type AuthSnapshot = {
   user: User | null;
   role: "admin" | "editor" | null;
   loading: boolean;
-  refresh: () => Promise<void>;
+  status: "initializing" | "authenticated" | "unauthenticated" | "error";
+  error: {
+    kind: "session" | "permissions" | "configuration";
+    message: string;
+  } | null;
 };
-const AuthContext = createContext<AuthState>({
+const anonymous: AuthSnapshot = {
   user: null,
   role: null,
+  loading: false,
+  status: "unauthenticated",
+  error: null,
+};
+const initial: AuthSnapshot = {
+  ...anonymous,
   loading: true,
+  status: "initializing",
+};
+type AuthState = AuthSnapshot & { refresh: () => Promise<void> };
+const AuthContext = createContext<AuthState>({
+  ...initial,
   refresh: async () => {},
 });
 export const useAuth = () => useContext(AuthContext);
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<Omit<AuthState, "refresh">>({
-    user: null,
-    role: null,
-    loading: true,
-  });
+  const [state, setState] = useState<AuthSnapshot>(initial);
   const cache = useQueryClient();
   const verifiedIdentity = useRef<string | null>(null);
   const verificationVersion = useRef(0);
+  const clearPrivateCache = useCallback(
+    () =>
+      cache.removeQueries({
+        predicate: (query) => query.queryKey.includes("admin"),
+      }),
+    [cache],
+  );
   const refresh = useCallback(async () => {
     const version = ++verificationVersion.current;
+    if (!verifiedIdentity.current)
+      setState((s) => ({
+        ...s,
+        loading: true,
+        status: "initializing",
+        error: null,
+      }));
+    let user: User | null = null;
     try {
       if (!supabase) {
-        verifiedIdentity.current = null;
-        setState({ user: null, role: null, loading: false });
-        return;
-      }
-      const {
-        data: { user },
-        error,
-      } = await supabase.auth.getUser();
-      if (version !== verificationVersion.current) return;
-      if (error || !user) {
-        verifiedIdentity.current = null;
-        cache.removeQueries({
-          predicate: (query) => query.queryKey.includes("admin"),
+        setState({
+          ...anonymous,
+          status: "error",
+          error: {
+            kind: "configuration",
+            message: "La conexión de acceso no está configurada.",
+          },
         });
-        setState({ user: null, role: null, loading: false });
         return;
       }
-      const { data, error: roleError } = await supabase.rpc(
-        "current_editor_role",
-      );
+      user = await recoverIdentity();
       if (version !== verificationVersion.current) return;
+      if (!user) {
+        verifiedIdentity.current = null;
+        clearPrivateCache();
+        setState(anonymous);
+        return;
+      }
+      const { data, error } = await supabase.rpc("current_editor_role");
+      if (version !== verificationVersion.current) return;
+      if (error || (data !== null && data !== "admin" && data !== "editor")) {
+        verifiedIdentity.current = null;
+        clearPrivateCache();
+        setState({
+          user,
+          role: null,
+          loading: false,
+          status: "error",
+          error: {
+            kind: "permissions",
+            message:
+              error?.code === "PGRST202"
+                ? "El servicio de permisos no está configurado correctamente. Contacta con la administración."
+                : "No se pudieron verificar los permisos de tu cuenta. Reintenta sin volver a iniciar sesión.",
+          },
+        });
+        return;
+      }
       verifiedIdentity.current = user.id;
-      if (roleError || !["admin", "editor"].includes(data))
-        cache.removeQueries({
-          predicate: (query) => query.queryKey.includes("admin"),
-        });
+      if (!data) clearPrivateCache();
       setState({
         user,
-        role:
-          !roleError && (data === "admin" || data === "editor") ? data : null,
+        role: data,
         loading: false,
+        status: "authenticated",
+        error: null,
       });
     } catch {
       if (version !== verificationVersion.current) return;
       verifiedIdentity.current = null;
-      cache.removeQueries({
-        predicate: (query) => query.queryKey.includes("admin"),
+      clearPrivateCache();
+      setState({
+        user,
+        role: null,
+        loading: false,
+        status: "error",
+        error: {
+          kind: user ? "permissions" : "session",
+          message: user
+            ? "No se pudieron verificar los permisos de tu cuenta. Reintenta sin volver a iniciar sesión."
+            : "No se pudo recuperar tu sesión. Reintenta o vuelve a iniciar sesión.",
+        },
       });
-      setState({ user: null, role: null, loading: false });
     }
-  }, [cache]);
+  }, [clearPrivateCache]);
   useEffect(() => {
+    let active = true;
+    let timer: ReturnType<typeof setTimeout> | undefined;
     void refresh();
-    // Do not call Auth methods synchronously inside the Auth callback (lock contention).
     const subscription = supabase?.auth.onAuthStateChange((event, session) => {
+      if (!active) return;
       if (event === "SIGNED_OUT") {
+        clearTimeout(timer);
         ++verificationVersion.current;
         verifiedIdentity.current = null;
-        setState({ user: null, role: null, loading: false });
-        cache.removeQueries({
-          predicate: (query) => query.queryKey.includes("admin"),
-        });
+        clearAuthNext();
+        setState(anonymous);
+        clearPrivateCache();
         return;
       }
-      // Preserve a verified same-user editor during token refresh or cross-tab events.
-      // Every mutation still revalidates the user and server role; changed identities fail closed.
       if (!session || session.user.id !== verifiedIdentity.current) {
         ++verificationVersion.current;
         verifiedIdentity.current = null;
-        setState({ user: null, role: null, loading: true });
-        cache.removeQueries({
-          predicate: (query) => query.queryKey.includes("admin"),
-        });
+        setState(initial);
+        clearPrivateCache();
       }
-      setTimeout(() => {
-        void refresh();
+      // Keep Auth methods outside the SDK callback lock, coalesce events, and
+      // cancel scheduled work on logout/unmount (including StrictMode mounts).
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        if (active) void refresh();
       }, 0);
     });
     return () => {
+      active = false;
+      clearTimeout(timer);
       ++verificationVersion.current;
       subscription?.data.subscription.unsubscribe();
     };
-  }, [cache, refresh]);
+  }, [clearPrivateCache, refresh]);
   return <AuthContext value={{ ...state, refresh }}>{children}</AuthContext>;
 }

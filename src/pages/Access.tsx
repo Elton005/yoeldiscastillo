@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { db } from "../lib/supabase";
 import { useAuth } from "../auth/AuthProvider";
-import { safeNext } from "../auth/actions";
+import { clearAuthNext, readAuthNext } from "../auth/actions";
+import { recoverIdentity } from "../auth/session";
 import { AuthForm } from "../auth/AuthForm";
 import { Home } from "./PublicPages";
 
@@ -18,32 +18,39 @@ export default function Access() {
 }
 export function AuthCallback() {
   const [message, setMessage] = useState("Verificando tu sesión…");
+  const [retryNext, setRetryNext] = useState("/");
   const navigate = useNavigate();
   const { refresh } = useAuth();
   const started = useRef(false);
   useEffect(() => {
     if (started.current) return;
     started.current = true;
+    // Match the prerendered document first; read browser-only intent after
+    // hydration rather than rendering a different href from local storage.
+    setRetryNext(readAuthNext());
     void (async () => {
       try {
-        const result = await db().auth.getSession();
-        if (result.error || !result.data.session) throw new Error();
-        const {
-          data: { user },
-          error,
-        } = await db().auth.getUser();
-        if (error || !user) throw new Error();
+        const user = await recoverIdentity(true);
+        if (!user) throw new Error();
         await refresh();
-        const next = safeNext(sessionStorage.getItem("auth-next"));
-        sessionStorage.removeItem("auth-next");
+        const next = readAuthNext();
+        clearAuthNext();
         window.history.replaceState(
-          {},
+          window.history.state,
           "",
           `${import.meta.env.BASE_URL}auth/callback`,
         );
         navigate(next === "/" ? "/acceso" : next, { replace: true });
       } catch {
-        setMessage("No se pudo verificar el acceso. Vuelve a iniciar sesión.");
+        // No raw provider errors, authorization codes or session details.
+        window.history.replaceState(
+          window.history.state,
+          "",
+          `${import.meta.env.BASE_URL}auth/callback`,
+        );
+        setMessage(
+          "No se pudo verificar el acceso. Reinicia el acceso en este mismo navegador y dominio www.",
+        );
       }
     })();
   }, [navigate, refresh]);
@@ -53,7 +60,10 @@ export function AuthCallback() {
         <div className="contacto-card">
           <h1 className="contacto__title">Acceso</h1>
           <p role="status">{message}</p>
-          <Link className="btn btn--outline" to="/acceso">
+          <Link
+            className="btn btn--outline"
+            to={`/acceso?next=${encodeURIComponent(retryNext)}`}
+          >
             Volver a iniciar sesión
           </Link>
         </div>
