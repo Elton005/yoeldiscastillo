@@ -252,6 +252,70 @@
 .settings-preview .editorial-hero {
   margin-top: 0;
 }
+
+/* Hidden in the existing vertical composition, including narrow previews. */
+.editorial-hero__foreground {
+  display: none;
+}
+
+@container (min-width: 1366px) {
+  .editorial-hero--seated-composite .editorial-hero__visual {
+    position: relative;
+    align-self: start;
+    mask-image: none;
+  }
+  .editorial-hero--seated-composite .editorial-hero__portrait--adaptive {
+    position: absolute;
+    top: 1rem;
+    /* Put the source's cropped chair edge outside the visible canvas, rather
+       than dissolving opaque leather/suit pixels into a second chair. */
+    left: calc((min(100cqw, 1600px) - 100cqw) / 2);
+    width: min(calc(var(--portrait-height, 640px) * 1.2), 48cqw, 768px);
+    height: auto;
+    max-width: none;
+    aspect-ratio: 1122 / 1402;
+    mask-image: none;
+  }
+  .editorial-hero--seated-composite .editorial-hero__portrait img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1122 / 1402;
+    object-fit: contain;
+    object-position: center bottom;
+    filter: none;
+  }
+  .editorial-hero--seated-composite .editorial-hero__foreground {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    /* Same image, cover scale and crop as the background: only the original
+       lamp, books and table occlude the portrait. No generated photo pixels. */
+    mask-image: url("/img/hero/library-foreground-mask.svg");
+    mask-size: cover;
+    mask-position: center;
+    mask-repeat: no-repeat;
+  }
+  .editorial-hero__foreground img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+  .editorial-hero__foreground::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      rgba(20, 11, 5, 0.04),
+      rgba(20, 11, 5, 0.18) 38%,
+      rgba(14, 8, 4, 0.72) 65%,
+      rgba(12, 7, 4, 0.88)
+    );
+  }
+}
 @media (min-width: 1024px) and (max-width: 1199px) {
   .editorial-hero {
     margin-top: var(--public-header-height, 130px);

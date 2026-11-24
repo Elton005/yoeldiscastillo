@@ -5,42 +5,64 @@ import { publicAsset, safeUrl } from "../models/content";
 import { useSiteSettings } from "../hooks/useSiteSettings";
 const bundledPortrait = "/img/hero/author-1141.webp";
 const bundledLibrary = "/img/hero/library-1672.webp";
+function LibraryLayer({
+  background,
+  foreground = false,
+}: {
+  background: string;
+  foreground?: boolean;
+}) {
+  return (
+    <picture
+      className={
+        foreground ? "editorial-hero__foreground" : "editorial-hero__background"
+      }
+      aria-hidden="true"
+    >
+      {background === bundledLibrary && (
+        <>
+          <source
+            media="(max-width: 767px)"
+            srcSet={publicAsset(
+              "/img/hero/library-mobile-640.webp 640w, /img/hero/library-mobile-960.webp 960w",
+            )}
+            sizes="100vw"
+          />
+          <source
+            srcSet={publicAsset(
+              "/img/hero/library-1024.webp 1024w, /img/hero/library-1672.webp 1672w",
+            )}
+            sizes="100vw"
+          />
+        </>
+      )}
+      <img
+        src={safeUrl(background, true)}
+        width="1672"
+        height="941"
+        alt=""
+        fetchPriority={foreground ? "auto" : "high"}
+      />
+    </picture>
+  );
+}
 export function HomeHero() {
   const settings = useSiteSettings();
+  // This physical foreground mask belongs only to the supplied library/seat.
+  // Custom photographs and the other image shapes keep their existing layout.
+  const seatedComposite =
+    settings.homeImage === bundledPortrait &&
+    settings.homeBackground === bundledLibrary &&
+    settings.homeImageShape === "original";
   return (
     <section
-      className="editorial-hero"
+      className={`editorial-hero${seatedComposite ? " editorial-hero--seated-composite" : ""}`}
       aria-labelledby="home-title"
       style={
         { "--portrait-height": `${settings.homeImageSize}px` } as CSSProperties
       }
     >
-      <picture className="editorial-hero__background" aria-hidden="true">
-        {settings.homeBackground === bundledLibrary && (
-          <>
-            <source
-              media="(max-width: 767px)"
-              srcSet={publicAsset(
-                "/img/hero/library-mobile-640.webp 640w, /img/hero/library-mobile-960.webp 960w",
-              )}
-              sizes="100vw"
-            />
-            <source
-              srcSet={publicAsset(
-                "/img/hero/library-1024.webp 1024w, /img/hero/library-1672.webp 1672w",
-              )}
-              sizes="100vw"
-            />
-          </>
-        )}
-        <img
-          src={safeUrl(settings.homeBackground, true)}
-          width="1672"
-          height="941"
-          alt=""
-          fetchPriority="high"
-        />
-      </picture>
+      <LibraryLayer background={settings.homeBackground} />
       <div className="editorial-hero__container">
         <div
           className={`editorial-hero__visual editorial-hero__visual--${settings.homeImageShape}`}
@@ -55,7 +77,11 @@ export function HomeHero() {
                 srcSet={publicAsset(
                   "/img/hero/seated-560.webp 560w, /img/hero/seated-576.webp 576w, /img/hero/seated-840.webp 840w, /img/hero/seated-1122.webp 1122w",
                 )}
-                sizes={`min(calc((min(${settings.homeImageSize * 1.12}px, 54vw, 800px) - 1rem) * 0.8003), 48vw, 768px)`}
+                sizes={
+                  seatedComposite
+                    ? `min(${settings.homeImageSize * 1.2}px, 48vw, 768px)`
+                    : `min(calc((min(${settings.homeImageSize * 1.12}px, 54vw, 800px) - 1rem) * 0.8003), 48vw, 768px)`
+                }
               />
             )}
             {settings.homeImage === bundledPortrait && (
@@ -106,6 +132,9 @@ export function HomeHero() {
           </div>
         </div>
       </div>
+      {seatedComposite && (
+        <LibraryLayer background={settings.homeBackground} foreground />
+      )}
     </section>
   );
 }
