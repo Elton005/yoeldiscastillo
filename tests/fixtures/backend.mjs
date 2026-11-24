@@ -117,6 +117,16 @@ http
       send({ ok: true });
       return;
     }
+    if (url.pathname === "/test/scenario" && req.method === "POST") {
+      if (body.scenario === "empty") {
+        for (const table of ["libros", "articulos", "destacados"]) records[table] = [];
+      } else if (body.scenario === "long") {
+        records.libros[0].titulo = "Conócete: una exploración profunda de la mente, el comportamiento humano y las decisiones conscientes";
+        records.articulos[0].titulo = "Reflexiones para construir una vida con propósito, claridad y autoconocimiento";
+        records.articulos[0].contenido = '<h2>Una lectura extensa</h2>' + '<p>El autoconocimiento invita a detenerse, escuchar y comprender nuestras decisiones. Este contenido pertenece únicamente al entorno de pruebas.</p><blockquote>Una pausa para reflexionar.</blockquote><ul><li>Escuchar</li><li>Comprender</li></ul>'.repeat(12) + '<p>' + 'PalabraExtensa'.repeat(30) + '</p><table><tr><th>Dimensión</th><th>Reflexión</th></tr><tr><td>Mente</td><td>Contenido de prueba</td></tr></table>';
+      }
+      send({ ok: true }); return;
+    }
     if (url.pathname === "/auth/v1/token") {
       const kind = body.email?.startsWith("admin") ? "admin" : "reader";
       send({

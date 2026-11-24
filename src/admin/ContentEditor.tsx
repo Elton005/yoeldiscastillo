@@ -1,3 +1,4 @@
+import { useUnsavedChanges } from "../hooks/useUnsavedChanges";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Controller, useForm, type FieldPath } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -51,6 +52,7 @@ export default function ContentEditor({
   useEffect(() => {
     onDirtyChange?.(isDirty);
   }, [isDirty, onDirtyChange]);
+  useUnsavedChanges(isDirty);
   const values = watch();
   const disabled = isSubmitting || uploading;
   const noun =
@@ -70,15 +72,15 @@ export default function ContentEditor({
     const id = `${table}-${name}`;
     return (
       <div className="form-field">
-        <label className="visually-hidden" htmlFor={id}>
-          {label}
-        </label>
+        <label htmlFor={id}>{label}</label>
         {multiline ? (
           <textarea
             id={id}
             className="admin-input"
             placeholder={placeholder}
             rows={rows}
+            aria-invalid={Boolean(errors[name])}
+            aria-describedby={errors[name] ? `${id}-error` : undefined}
             {...register(name)}
           />
         ) : (
@@ -87,13 +89,19 @@ export default function ContentEditor({
             className="admin-input"
             placeholder={placeholder}
             type={type}
+            aria-invalid={Boolean(errors[name])}
+            aria-describedby={errors[name] ? `${id}-error` : undefined}
             {...register(
               name,
               type === "number" ? { valueAsNumber: true } : {},
             )}
           />
         )}{" "}
-        {errors[name] && <p className="field-error">{errors[name]?.message}</p>}
+        {errors[name] && (
+          <p id={`${id}-error`} className="field-error">
+            {errors[name]?.message}
+          </p>
+        )}
       </div>
     );
   }
@@ -198,19 +206,26 @@ export default function ContentEditor({
         {table === "libros" && (
           <>
             {field("subtitulo", "Subtítulo")}
-            <div>
-              <label htmlFor="libro-estado" className="visually-hidden">
-                Estado
-              </label>
+            <div className="form-field">
+              <label htmlFor="libro-estado">Estado</label>
               <select
                 id="libro-estado"
                 className="select-input"
+                aria-invalid={Boolean(errors.estado)}
+                aria-describedby={
+                  errors.estado ? "libro-estado-error" : undefined
+                }
                 {...register("estado")}
               >
                 <option value="publicado">Publicado</option>
                 <option value="proximamente">Próximamente</option>
                 <option value="agotado">Agotado</option>
               </select>
+              {errors.estado && (
+                <p id="libro-estado-error" className="field-error">
+                  {errors.estado.message}
+                </p>
+              )}
             </div>
             {field("descripcion", "Descripción", "Descripción corta", true)}
             {field(
@@ -241,9 +256,7 @@ export default function ContentEditor({
           <>
             {field("categoria", "Categoría")}
             {field("resumen", "Resumen", "Resumen corto", true)}
-            <label className="visually-hidden" id="article-content-label">
-              Contenido del artículo
-            </label>
+            <label id="article-content-label">Contenido del artículo</label>
             <Suspense fallback={<p role="status">Cargando editor…</p>}>
               <Controller
                 name="contenido"
@@ -252,6 +265,10 @@ export default function ContentEditor({
                   <RichEditor
                     value={editorField.value}
                     onChange={editorField.onChange}
+                    invalid={Boolean(errors.contenido)}
+                    errorId={
+                      errors.contenido ? "articulos-contenido-error" : undefined
+                    }
                     addImage={() => {
                       setImageTarget("inline");
                       fileInput.current?.click();
@@ -261,7 +278,9 @@ export default function ContentEditor({
               />
             </Suspense>
             {errors.contenido && (
-              <p className="field-error">{errors.contenido.message}</p>
+              <p id="articulos-contenido-error" className="field-error">
+                {errors.contenido.message}
+              </p>
             )}
             {imageInput}
             <label className="custom-checkbox">
@@ -288,19 +307,28 @@ export default function ContentEditor({
         {table === "destacados" && (
           <>
             <div className="editor-pair">
-              <label className="visually-hidden" htmlFor="destacado-tipo">
-                Tipo
-              </label>
-              <select
-                id="destacado-tipo"
-                className="select-input"
-                {...register("tipo")}
-              >
-                <option value="app">App Interactiva</option>
-                <option value="articulo">Artículo</option>
-                <option value="libro">Libro</option>
-                <option value="personalizado">Personalizado</option>
-              </select>
+              <div className="form-field">
+                <label htmlFor="destacado-tipo">Tipo</label>
+                <select
+                  id="destacado-tipo"
+                  className="select-input"
+                  aria-invalid={Boolean(errors.tipo)}
+                  aria-describedby={
+                    errors.tipo ? "destacado-tipo-error" : undefined
+                  }
+                  {...register("tipo")}
+                >
+                  <option value="app">App Interactiva</option>
+                  <option value="articulo">Artículo</option>
+                  <option value="libro">Libro</option>
+                  <option value="personalizado">Personalizado</option>
+                </select>
+                {errors.tipo && (
+                  <p id="destacado-tipo-error" className="field-error">
+                    {errors.tipo.message}
+                  </p>
+                )}
+              </div>
               {field(
                 "badge_texto",
                 "Etiqueta",
@@ -374,9 +402,18 @@ export default function ContentEditor({
             <input
               className="admin-input"
               type="number"
+              aria-invalid={Boolean(errors.orden)}
+              aria-describedby={
+                errors.orden ? `${table}-orden-error` : undefined
+              }
               {...register("orden", { valueAsNumber: true })}
             />
           </label>
+          {errors.orden && (
+            <p id={`${table}-orden-error`} className="field-error">
+              {errors.orden.message}
+            </p>
+          )}
           {uploaded.length > 0 && (
             <>
               <p>

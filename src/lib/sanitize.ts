@@ -40,7 +40,7 @@ export function sanitizeRichHtml(html: string): string {
     ],
     allowedAttributes: {
       a: ["href", "title"],
-      img: ["src", "alt", "width", "height"],
+      img: ["src", "alt", "width", "height", "loading", "decoding"],
       th: ["colspan", "rowspan"],
       td: ["colspan", "rowspan"],
     },
@@ -52,8 +52,10 @@ export function sanitizeRichHtml(html: string): string {
         tagName: "img",
         attribs: {
           ...attributes,
+          alt: attributes.alt || "",
           src: publicAsset(attributes.src || ""),
           loading: "lazy",
+          decoding: "async",
         },
       }),
     },

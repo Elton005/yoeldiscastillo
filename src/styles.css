@@ -1,9 +1,12 @@
-@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Montserrat:wght@300;400;500;600&display=swap");
-@import "@fortawesome/fontawesome-free/css/all.min.css";
+@import "./styles/fonts.css";
+@import "@fortawesome/fontawesome-free/css/fontawesome.min.css";
+@import "@fortawesome/fontawesome-free/css/solid.min.css";
+@import "@fortawesome/fontawesome-free/css/brands.min.css";
 @import "./styles/public.css";
 @import "./styles/admin.css";
 @import "./styles/hero.css";
 @import "./styles/refinements.css";
+@import "./styles/polish.css";
 
 /* Compatibility and accessibility only. Palette, typography and public composition
    are inherited from the original CSS, in its original cascade order. */

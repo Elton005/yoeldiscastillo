@@ -6,7 +6,7 @@ import { RichText } from "../src/components/RichText";
 import { validImageBytes } from "../supabase/functions/_shared/image";
 import { safeNext } from "../src/auth/actions";
 describe("Contenido y navegación seguros", () => {
-  it("elimina scripts, handlers, SVG, iframes y protocolos ejecutables conservando el texto", () => {
+  it("elimina scripts, handlers, SVG, iframes y protocolos ejecutables conservando el texto", async () => {
     const input =
       '<h2>Lectura</h2><p onclick="steal()">Texto <strong>real</strong></p><script>alert(1)</script><a href="javascript:alert(1)">enlace</a><img src="https://example.com/a.jpg" onerror="steal()"><svg onload="steal()"></svg><iframe src="https://evil.example"></iframe>';
     const html = sanitizeRichHtml(input);
@@ -14,8 +14,33 @@ describe("Contenido y navegación seguros", () => {
     expect(html).toContain("<strong>real</strong>");
     expect(html).not.toMatch(/script|onclick|onerror|javascript:|svg|iframe/);
     render(<RichText html={input} />);
-    expect(screen.getByRole("heading", { name: "Lectura" })).toBeVisible();
+    expect(
+      await screen.findByRole("heading", { name: "Lectura" }),
+    ).toBeVisible();
     expect(document.querySelector("script,svg,iframe")).toBeNull();
+  });
+  it("reserva las dimensiones y difiere las imágenes del contenido sin aceptar handlers", async () => {
+    const input =
+      '<img src="/img/autor.jpg" alt="Retrato del autor" width="674" height="656" loading="eager" decoding="sync" onerror="steal()"><img src="https://example.com/lectura.webp" alt="Lectura"><img src="data:image/svg+xml,evil" alt="No permitido">';
+    const html = sanitizeRichHtml(input);
+    expect(sanitizeRichHtml(html)).toBe(html);
+    render(<RichText html={input} />);
+    const portrait = await screen.findByRole("img", {
+      name: "Retrato del autor",
+    });
+    expect(portrait).toHaveAttribute("src", "/img/autor.jpg");
+    expect(portrait).toHaveAttribute("width", "674");
+    expect(portrait).toHaveAttribute("height", "656");
+    for (const image of screen.getAllByRole("img")) {
+      expect(image).toHaveAttribute("loading", "lazy");
+      expect(image).toHaveAttribute("decoding", "async");
+      expect(image).not.toHaveAttribute("onerror");
+    }
+    expect(screen.getByRole("img", { name: "Lectura" })).toHaveAttribute(
+      "src",
+      "https://example.com/lectura.webp",
+    );
+    expect(screen.queryByRole("img", { name: "No permitido" })).toBeNull();
   });
   it.each([
     "javascript:alert(1)",

@@ -2,13 +2,13 @@
 
 ## Entradas y publicación
 
-El despliegue principal elegido es React + Vite estático. `index.html` es la plantilla fuente; `src/main.tsx` monta React y BrowserRouter. Vercel declara `framework: vite`, compila a `dist/` y resuelve las rutas SPA con `index.html`. No hay función SSR en `api/` que pueda impedir abrir la página.
+El despliegue principal elegido es React + Vite estático. `index.html` es la plantilla fuente; `src/main.tsx` monta React y BrowserRouter. Vercel declara `framework: vite`, compila a `dist/` y sirve los documentos generados para cada ruta y usa `404.html` como fallback de React. No hay función SSR en `api/` que pueda impedir abrir la página.
 
-GitHub Pages usa el workflow `.github/workflows/pages.yml`: compila a `dist-pages/`, configura el prefijo `/yoeldiscastillo/` y publica únicamente ese artefacto. Las entradas públicas conocidas, acceso y callback tienen copias del HTML compilado; `404.html` permite montar Router para detalles dinámicos. Estos detalles pueden conservar estado HTTP 404 al recargar en Pages, plataforma sin rewrites. Vercel sí responde 200 en esas rutas.
+GitHub Pages usa el workflow `.github/workflows/pages.yml`: compila a `dist-pages/`, configura el prefijo `/yoeldiscastillo/` y publica únicamente ese artefacto. Las entradas públicas, detalles conocidos, acceso y callback tienen HTML y metadatos propios generados al compilar; `404.html` permite montar Router para detalles dinámicos. Los detalles creados después de compilar pueden conservar estado HTTP 404 al recargar en Pages, plataforma sin rewrites. Vercel sí responde 200 en esas rutas.
 
-`publicAsset` adapta las imágenes internas y srcset al prefijo; BrowserRouter usa `BASE_URL`. Los callbacks de Auth también respetan ese prefijo. El contenido estático desplegado necesita JavaScript para mostrar la interfaz y cargar datos.
+`publicAsset` adapta las imágenes internas y srcset al prefijo; BrowserRouter usa `BASE_URL`. Los callbacks de Auth también respetan ese prefijo. Las páginas públicas incluyen contenido legible sin JavaScript cuando se construyen con conexión pública disponible. React hidrata ese snapshot y reconsulta el backend; navegación interactiva, sesión y panel necesitan JavaScript.
 
-`src/entry-server.tsx`, `scripts/serve.mjs` y `scripts/finalize-build.mjs` se conservan como renderizado opcional local/pruebas, accesible con `build:ssr`/`preview:ssr`. No forman parte del build de publicación estática. Ver [despliegue](DEPLOYMENT.md).
+`scripts/prerender.mjs` usa `src/entry-server.tsx` únicamente durante el build y retira el renderer temporal. No publica funciones Node. Los artefactos son HTML, XML, CSS, JS e imágenes. `scripts/serve.mjs` y `scripts/finalize-build.mjs` mantienen las comprobaciones SSR locales opcionales. Ver [despliegue](DEPLOYMENT.md).
 
 ## Capas
 
@@ -31,3 +31,5 @@ TanStack Query separa claves públicas y administrativas. La autorización se ve
 El hero usa biblioteca, retrato, degradados y HTML separados. Desde 1366 px se elige el recurso sentado; debajo se conserva la composición vertical de pie. Una fotografía personalizada mantiene su URL. Cabecera y footer conservan enlaces reales y ajustes compartidos.
 
 `public/img` mantiene una sola copia de los originales con URL pública, incluidas imágenes referenciadas por contenido remoto. `assets/source` conserva únicamente las tres fuentes necesarias del hero. Los generadores producen las variantes WebP activas; el recorte intermedio se procesa en memoria.
+
+Las fuentes Cinzel/Montserrat variables se sirven localmente. `polish.css` comparte espaciado, accesibilidad, menús y ajustes del panel. El saneador HTML y el renderizador de contenido rico se cargan de forma diferida; la portada no los necesita.

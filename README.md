@@ -4,7 +4,7 @@ Sitio y panel administrativo en React + TypeScript estricto, Vite y Supabase. El
 
 ## Uso local
 
-Node 22.12 o posterior (validado con Node 24).
+Node 24.x (la misma versión en local, GitHub Actions y Vercel).
 
 ```powershell
 npm ci
@@ -19,6 +19,7 @@ La configuración del cliente solo admite claves públicas. Sin conexión config
 
 ```powershell
 npm run check:architecture
+npm run lint
 npm test
 npm run test:e2e
 npm run test:visual
@@ -26,7 +27,7 @@ npm run build
 npm run preview
 ```
 
-`check:architecture` detecta imports relativos rotos, ciclos, módulos sin uso y dependencias entre capas incorrectas. `build` incluye esa comprobación, TypeScript, compilación React/Vite y escáner de claves. `preview` sirve el resultado local en el puerto 4173.
+`check:architecture` detecta imports relativos rotos, ciclos, módulos sin uso y dependencias entre capas incorrectas. `build` incluye esa comprobación, TypeScript, compilación React/Vite, generación de HTML/metadatos/sitemap estáticos y escáner de claves. `preview` sirve el resultado local en el puerto 4173.
 
 ## Organización
 
@@ -43,7 +44,7 @@ npm run preview
 | `supabase`                                           | Migraciones, función de imágenes y pruebas de permisos    |
 | `tests`, `scripts`                                   | Verificación y herramientas del proyecto                  |
 
-`index.html` es la única plantilla fuente de la aplicación. El despliegue principal es React + Vite estático, con `dist/index.html` y navegación SPA. `src/main.tsx` es la entrada del navegador. `npm run build` conserva el HTML compilado en `dist/`. `npm run build:pages` genera `dist-pages/` para GitHub Pages. El renderer de `src/entry-server.tsx` se conserva para comprobaciones opcionales con `npm run build:ssr` y `npm run preview:ssr`; no interviene en el despliegue principal.
+`index.html` es la única plantilla fuente de la aplicación. El despliegue principal es React + Vite estático, con `dist/index.html` y navegación SPA. `src/main.tsx` es la entrada del navegador. `npm run build` conserva el HTML compilado en `dist/`. `npm run build:pages` genera `dist-pages/` para GitHub Pages. El renderer de `src/entry-server.tsx` se ejecuta durante la compilación para generar documentos estáticos, sin funciones de servidor en el hosting. Con variables públicas configuradas precarga el contenido publicado; React lo vuelve a consultar tras hidratar. El HTML sin JavaScript y el sitemap se actualizan con una nueva compilación. También existen `build:ssr` y `preview:ssr` como comprobaciones locales opcionales.
 
 Configuración y diagnóstico: [despliegue](docs/DEPLOYMENT.md).
 
@@ -52,3 +53,5 @@ El hero utiliza el recurso sentado desde 1366 px y el retrato de pie en pantalla
 `npm run images` regenera favicon y WebP a partir de las fuentes conservadas. No se modifica la identidad del autor ni las portadas.
 
 Documentación: [arquitectura](docs/ARCHITECTURE.md), [personalización](docs/CUSTOMIZATION.md), [Supabase](docs/SUPABASE_SETUP.md), [migraciones](docs/MIGRATION.md), [seguridad](docs/SECURITY.md) y [pruebas](docs/TESTING.md).
+
+Auditoría actual: [informe final](docs/FINAL_AUDIT.md). Evidencia local reproducible con `npm run audit:ui` y `node scripts/audit-report.mjs`; resultados en `.qa/final-audit/`.

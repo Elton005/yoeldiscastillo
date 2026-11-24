@@ -7,7 +7,6 @@ import {
   type ContentForm,
   type Table,
 } from "../models/content";
-import { sanitizeRichHtml } from "../lib/sanitize";
 export const columns = {
   libros:
     "id,titulo,subtitulo,descripcion,prologo,imagen_url,estado,amazon_url,apk_url,fecha_publicacion,orden,creado_en",
@@ -94,7 +93,10 @@ export async function saveContent(
   if (table === "articulos") {
     if (original && values.contenido === original.contenido)
       delete payload.contenido;
-    else payload.contenido = sanitizeRichHtml(String(payload.contenido));
+    else {
+      const { sanitizeRichHtml } = await import("../lib/sanitize");
+      payload.contenido = sanitizeRichHtml(String(payload.contenido));
+    }
   }
   if (table === "libros" && !payload.fecha_publicacion)
     payload.fecha_publicacion = null;

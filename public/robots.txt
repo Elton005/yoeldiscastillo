@@ -4,4 +4,4 @@ Disallow: /admin
 Disallow: /acceso
 Disallow: /auth/
 Disallow: /api/
-Sitemap: https://yoeldiscastillo.com/sitemap.xml
+Sitemap: https://www.yoeldiscastillo.com/sitemap.xml

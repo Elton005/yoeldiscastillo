@@ -1,0 +1,256 @@
+/* Shared finishing tokens preserve the approved oak/gold theme. */
+:root {
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 2rem;
+  --space-section: clamp(2.5rem, 5vw, 5rem);
+  --radius-control: 4px;
+  --radius-panel: 8px;
+  --border-editorial: rgba(212, 184, 150, 0.24);
+  --reading-width: 68ch;
+}
+.site-public-shell
+  :is(.libros-page, .articulos-page, .autor-page, .contacto-page) {
+  padding-top: calc(var(--public-header-height, 78px) + var(--space-section));
+}
+.site-public-shell :is(h1, h2, h3, p),
+.site-admin-shell :is(h1, h2, h3, p) {
+  overflow-wrap: anywhere;
+}
+.site-public-shell .btn,
+.site-admin-shell .btn,
+.modal-auth .btn {
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal;
+}
+.site-public-shell :is(.btn-compartir, .site-footer__social a),
+.site-admin-shell :is(.btn-icon, .btn-logout, .toolbar button) {
+  min-width: 44px;
+  min-height: 44px;
+}
+.site-public-shell .articulo-modal__texto {
+  max-width: var(--reading-width);
+  margin-inline: auto;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1rem, 0.95rem + 0.3vw, 1.125rem);
+  line-height: 1.85;
+}
+.site-public-shell .articulo-modal__texto :is(h2, h3) {
+  font-size: clamp(1.25rem, 1.1rem + 0.5vw, 1.6rem);
+  line-height: 1.4;
+}
+.site-public-shell .articulo-modal__texto blockquote {
+  border-left: 2px solid var(--gold-primary);
+  padding-left: var(--space-3);
+  margin-block: var(--space-4);
+  color: var(--gold-hover);
+  font-style: italic;
+}
+.site-public-shell .articulo-modal__compartir {
+  flex-wrap: wrap;
+}
+.site-public-shell .articulo-modal__titulo {
+  font-size: clamp(1.5rem, 1.15rem + 1.5vw, 2.7rem);
+  line-height: 1.3;
+}
+.site-public-shell .acordeon__trigger {
+  white-space: normal;
+  text-align: left;
+}
+.site-public-shell .promo-card--text {
+  grid-template-columns: minmax(0, 1fr);
+  min-height: 260px;
+}
+.site-public-shell .promo-card__badge ~ .promo-card__content {
+  padding-top: 3.5rem;
+}
+.site-public-shell .promo-card--libro .promo-card__image img {
+  object-fit: contain;
+  padding: 1rem;
+}
+.site-public-shell .promo-card--libro .promo-card__image::after {
+  background: none;
+}
+.site-admin-shell .admin-page {
+  padding-block: clamp(2rem, 4vw, 4rem);
+}
+.site-admin-shell .editor-panel {
+  padding: clamp(1rem, 3vw, 2rem);
+}
+.site-admin-shell .form-field {
+  min-width: 0;
+  gap: var(--space-1);
+}
+.site-admin-shell .form-field > label,
+.auth-label {
+  display: block;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+.auth-label {
+  margin: 0.75rem 0 0.4rem;
+  text-align: left;
+}
+.site-admin-shell :is(.admin-input, .select-input) {
+  min-width: 0;
+}
+.site-admin-shell :is(.admin-item, .admin-item-info, .admin-item-admin) {
+  min-width: 0;
+}
+.site-admin-shell .admin-actions {
+  flex-wrap: wrap;
+}
+.site-admin-shell .admin-tabs {
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 0.25rem;
+}
+.site-admin-shell .admin-tab {
+  min-width: 0;
+  min-height: 44px;
+  white-space: normal;
+}
+.site-admin-shell :is(.admin-input, .select-input),
+.modal-auth .admin-input {
+  font-size: 1rem;
+}
+.site-admin-shell .admin-thumb {
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.site-admin-shell .admin-item-info {
+  flex: 1 1 16rem;
+}
+.site-admin-shell .admin-item {
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.site-admin-shell .admin-item-admin {
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.site-admin-shell .admin-item-admin h3 {
+  overflow-wrap: anywhere;
+}
+.site-admin-shell .site-footer--admin {
+  padding-block: var(--space-3);
+}
+.site-admin-shell .site-footer--admin .site-footer__bottom {
+  border: 0;
+  padding-top: 0;
+}
+.site-admin-shell .editor-panel :is(.field-error, [role="alert"]) {
+  line-height: 1.6;
+}
+.site-admin-shell input::placeholder,
+.modal-auth input::placeholder,
+.site-admin-shell textarea::placeholder {
+  color: #bbaa99;
+  opacity: 1;
+}
+/* Fixed navigation uses the measured header height and scrolls on short screens. */
+@media (max-width: 1199px) {
+  .site-public-shell .header__container {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    gap: 0.8rem;
+  }
+  .site-public-shell .header__actions {
+    display: none !important;
+  }
+  .site-public-shell .logo {
+    order: 2;
+    min-width: 0;
+    flex-shrink: 1;
+  }
+  .site-public-shell .logo__text {
+    overflow-wrap: normal;
+  }
+  .site-public-shell .nav__toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    order: 1;
+    margin: 0;
+  }
+  .site-public-shell .nav {
+    display: block;
+    position: fixed;
+    top: var(--public-header-height, 76px);
+    left: 0;
+    width: 100%;
+    max-height: calc(100dvh - var(--public-header-height, 76px));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: var(--bg-secondary);
+    padding: var(--space-3);
+    border-bottom: 1px solid var(--gold-primary);
+    transform: translateY(-150%);
+    visibility: hidden;
+  }
+  .site-public-shell .nav.active {
+    transform: none;
+    visibility: visible;
+  }
+  .site-public-shell .nav__list {
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+  }
+  .site-public-shell .nav__link {
+    padding: 0.65rem;
+    min-height: 44px;
+  }
+  .site-public-shell .nav__login-mobile {
+    display: block !important;
+    margin-top: 1rem;
+    padding-top: 1rem;
+  }
+  .site-public-shell .nav__login-mobile .btn {
+    display: inline-flex;
+    justify-content: center;
+    gap: 0.6rem;
+    letter-spacing: 0.06em;
+    box-shadow: none;
+  }
+}
+@media (max-width: 767px) {
+  .site-admin-shell .admin-item-info {
+    flex-basis: 100%;
+    width: 100%;
+  }
+  .site-admin-shell .admin-item .admin-actions {
+    margin-left: auto;
+  }
+  .site-admin-shell .header-admin__brand {
+    min-width: 0;
+  }
+  .site-admin-shell .header-admin__title {
+    font-size: clamp(0.8rem, 3.5vw, 1rem);
+  }
+  .site-admin-shell .header-admin__text {
+    min-width: 0;
+  }
+  .site-admin-shell .header-admin__container {
+    gap: 0.75rem;
+  }
+  .modal-auth[role="dialog"] {
+    padding: 1rem;
+  }
+  .modal-auth .modal-auth__content {
+    max-height: calc(100dvh - 2rem);
+    padding: 2.5rem 1.25rem 1.5rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-public-shell .nav {
+    transition: none;
+  }
+}

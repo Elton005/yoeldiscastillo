@@ -4,9 +4,10 @@ import { useAuth } from "../auth/AuthProvider";
 import { AuthDialogsProvider, useAuthDialogs } from "../auth/AuthDialogs";
 import { db } from "../lib/supabase";
 import { useSiteSettings } from "../hooks/useSiteSettings";
-import { publicAsset, safeUrl } from "../models/content";
+import { safeUrl } from "../models/content";
 import { SiteFooter } from "./SiteFooter";
 import { Icon } from "./Icon";
+import { confirmLeave } from "../hooks/useUnsavedChanges";
 const navigation = [
   ["/", "INICIO"],
   ["/sobre-mi.html", "SOBRE MÍ"],
@@ -22,21 +23,23 @@ function Social() {
         ["facebook-f", "Facebook", settings.facebook],
         ["instagram", "Instagram", settings.instagram],
         ["linkedin-in", "LinkedIn", settings.linkedin],
-      ].map(([name, label, url]) => (
-        <a
-          key={name}
-          role="link"
-          aria-label={label}
-          href={safeUrl(url) || undefined}
-          target={url ? "_blank" : undefined}
-          rel={url ? "noopener noreferrer" : undefined}
-          aria-disabled={!url || undefined}
-          tabIndex={url ? undefined : -1}
-          title={url ? label : "Perfil social pendiente de configurar"}
-        >
-          <Icon name={name} brand />
-        </a>
-      ))}
+      ]
+        .filter(([, , url]) => Boolean(safeUrl(url)))
+        .map(([name, label, url]) => (
+          <a
+            key={name}
+            role="link"
+            aria-label={label}
+            href={safeUrl(url) || undefined}
+            target={url ? "_blank" : undefined}
+            rel={url ? "noopener noreferrer" : undefined}
+            aria-disabled={!url || undefined}
+            tabIndex={url ? undefined : -1}
+            title={url ? label : "Perfil social pendiente de configurar"}
+          >
+            <Icon name={name} brand />
+          </a>
+        ))}
     </div>
   );
 }
@@ -78,6 +81,7 @@ function Shell() {
   }, [pathname]);
   useEffect(() => {
     if (!open) return;
+    publicHeader.current?.querySelector<HTMLElement>(".nav a[href]")?.focus();
     const close = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setOpen(false);
@@ -88,6 +92,7 @@ function Shell() {
     return () => document.removeEventListener("keydown", close);
   }, [open]);
   async function logout() {
+    if (!confirmLeave()) return;
     try {
       const result = await db().auth.signOut();
       if (result.error) throw result.error;
@@ -200,30 +205,22 @@ function Shell() {
         </header>
       )}
       <main id="contenido" tabIndex={-1}>
+        {error && (
+          <p className="notice" role="alert">
+            {error}
+          </p>
+        )}
         <Outlet />
       </main>
       {!isAdmin ? (
         <SiteFooter showQuote={home} />
       ) : (
-        <footer className="footer">
-          <div className="container">
-            <p className="footer__pre-text">
-              Experiencia interactiva desarrollada por
+        <footer className="site-footer site-footer--admin">
+          <div className="container site-footer__bottom">
+            <p>© {new Date().getFullYear()} Yoeldis Castillo Quiala</p>
+            <p className="site-footer__credit">
+              Desarrollado por <span>Elton Olivares</span>
             </p>
-            <div className="footer__brand">
-              <img
-                src={publicAsset("/img/Eltonlogo.jpg")}
-                alt="EO Logo"
-                className="footer__logo"
-              />
-              <h3 className="footer__name">ELTON OLIVARES</h3>
-            </div>
-            <p className="footer__tagline">INNOVACIÓN • DISEÑO • TECNOLOGÍA</p>
-            {error && (
-              <p className="notice" role="alert">
-                {error}
-              </p>
-            )}
           </div>
         </footer>
       )}

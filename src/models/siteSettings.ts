@@ -91,7 +91,7 @@ export const defaultSiteSettings: SiteSettings = {
   articlesTitle: "Reflexiones y Recursos",
   articlesSubtitle:
     "Ideas, herramientas y análisis para tu crecimiento personal.",
-  contactTitle: "Contáctanos",
+  contactTitle: "Contacta conmigo",
   contactBody:
     "¿Tienes alguna duda, una consulta sobre mis libros o simplemente quieres compartir cómo este contenido ha impactado tu vida?\nEstoy aquí para escucharte. No dudes en escribirme, responderé a la brevedad posible.",
   contactEmail: "contacto@yoeldisquiala.com",

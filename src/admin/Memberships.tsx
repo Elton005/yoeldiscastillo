@@ -75,15 +75,30 @@ export default function Memberships() {
             className="admin-input"
             type="email"
             autoComplete="off"
+            aria-invalid={Boolean(errors.email)}
+            aria-describedby={errors.email ? "member-email-error" : undefined}
             {...register("email")}
           />
           {errors.email && (
-            <span className="field-error">Escribe un correo válido.</span>
+            <span id="member-email-error" className="field-error" role="alert">
+              Escribe un correo válido.
+            </span>
           )}
         </label>
         <label>
           Nombre (opcional)
-          <input className="admin-input" {...register("nombre")} />
+          <input
+            className="admin-input"
+            maxLength={150}
+            aria-invalid={Boolean(errors.nombre)}
+            aria-describedby={errors.nombre ? "member-name-error" : undefined}
+            {...register("nombre")}
+          />
+          {errors.nombre && (
+            <span id="member-name-error" className="field-error" role="alert">
+              Usa un nombre de hasta 150 caracteres.
+            </span>
+          )}
         </label>
         <label>
           Permiso

@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { lazy, Suspense, useCallback, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -14,7 +14,7 @@ import { AuthorImage } from "../components/AuthorImage";
 import { RichText } from "../components/RichText";
 import { Icon } from "../components/Icon";
 import { useDialog } from "../hooks/useDialog";
-import { sanitizeRichHtml } from "../lib/sanitize";
+const ArticleSummary = lazy(() => import("../components/ArticleSummary"));
 import { siteUrl } from "../lib/seo";
 import { useSiteSettings } from "../hooks/useSiteSettings";
 import { HomeHero } from "../components/HomeHero";
@@ -147,7 +147,7 @@ function FeatureCard({ item }: { item: Content }) {
   const image = safeUrl(item.imagen_url ?? "", true);
   return (
     <article
-      className={`promo-card promo-card--${item.tipo || "personalizado"}`}
+      className={`promo-card promo-card--${item.tipo || "personalizado"}${image ? "" : " promo-card--text"}`}
     >
       {item.badge_texto && (
         <div className="promo-card__badge">
@@ -339,6 +339,8 @@ export function Books() {
             <div className="escritor-amigo__imagen">
               <img
                 src={publicAsset("/img/junior-osmany.jpg")}
+                width="1026"
+                height="976"
                 alt="Junior Osmany Coronel Durán"
                 loading="lazy"
               />
@@ -525,11 +527,6 @@ export function Articles() {
           <div id="lista-articulos" className="articulos-grid">
             {query.data?.map((item) => {
               const image = safeUrl(item.imagen_url ?? "", true);
-              const summary =
-                item.resumen ||
-                sanitizeRichHtml(item.contenido || "")
-                  .replace(/<[^>]+>/g, "")
-                  .slice(0, 120);
               return (
                 <article className="articulo-card" key={item.id}>
                   <div className="articulo-card__img-wrapper">
@@ -556,7 +553,19 @@ export function Articles() {
                     <h2 className="articulo-card__titulo">
                       <Link to={`/articulos/${item.id}`}>{item.titulo}</Link>
                     </h2>
-                    <p className="articulo-card__resumen">{summary}</p>
+                    {item.resumen ? (
+                      <p className="articulo-card__resumen">{item.resumen}</p>
+                    ) : (
+                      <Suspense
+                        fallback={
+                          <p className="articulo-card__resumen" role="status">
+                            Cargando extracto…
+                          </p>
+                        }
+                      >
+                        <ArticleSummary html={item.contenido || ""} />
+                      </Suspense>
+                    )}
                     <button
                       className="btn btn--outline btn-leer-mas"
                       onClick={() => setSelected(item)}

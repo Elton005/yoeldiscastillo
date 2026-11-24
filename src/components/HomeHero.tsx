@@ -53,9 +53,9 @@ export function HomeHero() {
                 media="(min-width: 1366px)"
                 type="image/webp"
                 srcSet={publicAsset(
-                  "/img/hero/seated-560.webp 560w, /img/hero/seated-840.webp 840w, /img/hero/seated-1122.webp 1122w",
+                  "/img/hero/seated-560.webp 560w, /img/hero/seated-576.webp 576w, /img/hero/seated-840.webp 840w, /img/hero/seated-1122.webp 1122w",
                 )}
-                sizes="(min-width: 1600px) 650px, 48vw"
+                sizes={`min(calc((min(${settings.homeImageSize * 1.12}px, 54vw, 800px) - 1rem) * 0.8003), 48vw, 768px)`}
               />
             )}
             {settings.homeImage === bundledPortrait && (
@@ -64,7 +64,7 @@ export function HomeHero() {
                 srcSet={publicAsset(
                   "/img/hero/author-480.webp 480w, /img/hero/author-768.webp 768w, /img/hero/author-1141.webp 1141w",
                 )}
-                sizes="(max-width: 767px) min(88vw, 340px), 360px"
+                sizes="(max-width: 767px) calc((clamp(260px, 76vw, 340px) - 0.5rem) * 0.8274), calc((clamp(280px, 48vw, 410px) - 1rem) * 0.8274)"
               />
             )}
             <img
@@ -72,7 +72,7 @@ export function HomeHero() {
               alt={settings.homeImageAlt}
               width="1141"
               height="1379"
-              fetchPriority="high"
+              fetchPriority="auto"
               loading="eager"
             />
           </picture>

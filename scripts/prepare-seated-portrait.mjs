@@ -20,7 +20,7 @@ if (!metadata.hasAlpha || !transparent || !opaque)
     "The supplied seated portrait must have real transparency and an opaque subject.",
   );
 const variants = [];
-for (const width of [560, 840, 1122]) {
+for (const width of [560, 576, 840, 1122]) {
   const path = `public/img/hero/seated-${width}.webp`;
   const output = await sharp(input)
     .resize({ width, withoutEnlargement: true })

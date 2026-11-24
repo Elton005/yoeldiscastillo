@@ -5,6 +5,7 @@
 ```powershell
 npm run check:architecture
 npm run typecheck
+npm run lint
 npm test
 npm run test:e2e
 npm run test:visual
@@ -29,15 +30,18 @@ Las capturas visuales actuales y el informe se generan en `.qa/visual/`, sin con
 
 ## Resultado local actual
 
-Verificado el 23 de noviembre de 2026 para la publicación estática elegida:
+Cierre de auditoría: 24 de noviembre de 2026.
 
-- Arquitectura: 33 módulos utilizados, sin ciclos ni imports rotos; TypeScript sin errores.
-- Unitarias y SQL: 44 pruebas aprobadas en 8 archivos, incluido el prefijo de imágenes y srcset.
-- Build Vercel y Pages: correctos, con `index.html` compilado y escáner sin claves privilegiadas detectadas.
-- `test:deployment`: ambos destinos aprobados; siete entradas directas por plataforma, navegación React, catálogo, imágenes y detalle de libro. Pages utiliza su fallback 404 para detalles dinámicos; la limitación HTTP se documenta en [DEPLOYMENT.md](DEPLOYMENT.md).
-- Validación de entorno: rechaza variables ausentes y claves secretas; acepta formato público. No certifica que las claves funcionen remotamente.
+- ESLint y TypeScript: sin errores; arquitectura con 36 módulos usados y sin ciclos.
+- Unitarias/SQL: 64 pruebas aprobadas en 12 archivos.
+- E2E: 33 pruebas aprobadas en la última ejecución completa en escritorio, tablet y móvil.
+- Build React/Vite: correcto, con generación de metadatos/HTML/sitemap estáticos y escáner de claves.
+- Builds de Vercel/Pages aislados: ambas salidas verificadas en navegador, siete entradas por plataforma, navegación y detalle; sin errores de hidratación.
+- Auditoría visual: las doce resoluciones solicitadas, horizontal, altura reducida, texto al 200 % y reflow equivalente; 152 casos registrados, 123 capturas antes y 158 después. Sin geometría desbordada ni excepciones JS. Axe: 16 análisis de la muestra posterior sin infracciones detectadas.
+- Lighthouse: tres muestras por versión/perfil, Chrome nuevo y gzip; LCP mediano móvil 4,40 → 3,96 s y escritorio 1,00 → 0,78 s. El objetivo móvil de 2,5 s sigue pendiente. INP de campo no medido.
+- `npm audit --json`: 0 vulnerabilidades reportadas.
 
-La suite E2E general incluye pruebas del SSR opcional, que no describen la publicación estática. La comprobación nueva utiliza archivos compilados servidos sin Vite dev ni SSR y un backend de prueba. El despliegue remoto corregido queda pendiente de subir el commit y configurar ambas plataformas.
+Informe completo, riesgos y comparador: [FINAL_AUDIT.md](FINAL_AUDIT.md). Reproducción de capturas con `npm run audit:ui`, comparación de rendimiento con `npm run audit:performance`, informe con `node scripts/audit-report.mjs`. Las suites comparten el backend 54329 y deben ejecutarse secuencialmente.
 
 ## Alcance de la evidencia
 
@@ -45,4 +49,4 @@ El backend HTTP de `tests/fixtures` se limita a loopback y prueba la interfaz; n
 
 Auth/OAuth/SMTP, persistencia remota, RLS de la instancia, Edge Function y Storage reales requieren un entorno autorizado y cuentas dedicadas. `npm run test:permissions` exige esa configuración y no informa éxito cuando falta. Una compilación correcta no certifica esas integraciones.
 
-No hay linter configurado en el proyecto. TypeScript estricto y el control de arquitectura son comprobaciones distintas y no se presentan como lint.
+ESLint está configurado mediante `eslint.config.mjs` y reglas recomendadas de TypeScript. TypeScript estricto y el control de arquitectura son comprobaciones adicionales distintas.

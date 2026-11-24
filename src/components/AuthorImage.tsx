@@ -7,7 +7,7 @@ export function AuthorImage({ hero = false }: { hero?: boolean }) {
         srcSet={publicAsset(
           "/img/optimized/autor-360.webp 360w, /img/optimized/autor-674.webp 674w",
         )}
-        sizes="(max-width: 760px) 90vw, 42vw"
+        sizes="(max-width: 900px) min(90vw, 280px), 350px"
       />
       <img
         src={publicAsset("/img/autor.jpg")}

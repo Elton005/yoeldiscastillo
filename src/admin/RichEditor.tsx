@@ -9,10 +9,14 @@ export default function RichEditor({
   value,
   onChange,
   addImage,
+  invalid = false,
+  errorId,
 }: {
   value: string;
   onChange: (html: string) => void;
   addImage: () => void;
+  invalid?: boolean;
+  errorId?: string;
 }) {
   const editor = useEditor({
     extensions: [
@@ -29,6 +33,8 @@ export default function RichEditor({
         role: "textbox",
         "aria-label": "Contenido del artículo",
         "aria-multiline": "true",
+        "aria-invalid": String(invalid),
+        ...(errorId ? { "aria-describedby": errorId } : {}),
       },
     },
     onUpdate: ({ editor: updated }) => onChange(updated.getHTML()),

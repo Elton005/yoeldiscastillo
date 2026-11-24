@@ -11,7 +11,7 @@ export function useDialog(onClose: () => void) {
     const focusable = () =>
       [
         ...(ref.current?.querySelectorAll<HTMLElement>(
-          'button:not(:disabled),a[href],input:not(:disabled),[tabindex="0"]',
+          'button:not(:disabled),a[href],input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[tabindex="0"]',
         ) ?? []),
       ].filter((el) => el.getClientRects().length > 0);
     focusable()[0]?.focus({ preventScroll: true });
@@ -33,10 +33,29 @@ export function useDialog(onClose: () => void) {
         }
       }
     };
+    // Make background branches inert, including when the dialog is nested in a route.
+    const background: { element: HTMLElement; inert: boolean }[] = [];
+    let branch: HTMLElement | null =
+      ref.current?.closest<HTMLElement>('[role="dialog"]') || ref.current;
+    while (branch?.parentElement) {
+      for (const sibling of branch.parentElement.children) {
+        if (
+          sibling !== branch &&
+          sibling instanceof HTMLElement &&
+          !["SCRIPT", "STYLE"].includes(sibling.tagName)
+        ) {
+          background.push({ element: sibling, inert: sibling.inert });
+          sibling.inert = true;
+        }
+      }
+      if (branch.parentElement === document.body) break;
+      branch = branch.parentElement;
+    }
     document.addEventListener("keydown", keyboard);
     return () => {
       document.removeEventListener("keydown", keyboard);
       document.body.style.overflow = overflow;
+      for (const { element, inert } of background) element.inert = inert;
       previous?.focus({ preventScroll: true });
     };
   }, [onClose]);

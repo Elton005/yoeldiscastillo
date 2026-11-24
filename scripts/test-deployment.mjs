@@ -1,4 +1,5 @@
 import { build } from "vite";
+import { prerender } from "./prerender.mjs";
 import { buildPages } from "./build-pages.mjs";
 import { chromium } from "@playwright/test";
 import { createServer } from "node:http";
@@ -10,8 +11,6 @@ import assert from "node:assert/strict";
 // Isolated production builds: never write fixture configuration into dist/.
 process.env.VITE_SUPABASE_URL = "http://127.0.0.1:54329";
 process.env.VITE_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_local_fixture_only";
-await build({ build: { outDir: ".qa/deployment/vercel" } });
-await buildPages(".qa/deployment/pages");
 const backend = spawn(process.execPath, ["tests/fixtures/backend.mjs"], {
   windowsHide: true,
   stdio: "ignore",
@@ -26,9 +25,14 @@ try {
     if (attempt > 50) throw new Error("Backend de pruebas no disponible");
     await new Promise((done) => setTimeout(done, 100));
   }
+  await build({ build: { outDir: ".qa/deployment/vercel" } });
+  await prerender(".qa/deployment/vercel", "/", { requireBackend: true });
+  await buildPages(".qa/deployment/pages");
   browser = await chromium.launch();
   const types = {
     ".html": "text/html",
+    ".xml": "application/xml",
+    ".txt": "text/plain",
     ".js": "application/javascript",
     ".css": "text/css",
     ".jpg": "image/jpeg",
@@ -58,7 +62,7 @@ try {
         if ((await stat(file).catch(() => null))?.isDirectory())
           file = resolve(file, "index.html");
         if (!(await stat(file).catch(() => null))?.isFile()) {
-          file = resolve(root, name === "vercel" ? "index.html" : "404.html");
+          file = resolve(root, "404.html");
           if (name === "pages") res.statusCode = 404;
         }
         res.setHeader(
@@ -88,6 +92,13 @@ try {
       "No se debe publicar TypeScript fuente",
     );
     assert.match(html, /assets\/index-.*\.js/);
+    assert.match(html, /<h1[^>]*>/);
+    const sitemapResponse = await fetch(origin + base + "sitemap.xml");
+    assert.match(sitemapResponse.headers.get("content-type"), /xml/);
+    const sitemap = await sitemapResponse.text();
+    assert.match(sitemap, /<urlset/);
+    assert.match(sitemap, /libros\/1/);
+
     for (const path of [
       "",
       "libros.html",

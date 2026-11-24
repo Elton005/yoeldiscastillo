@@ -1,3 +1,4 @@
+import { useUnsavedChanges } from "../hooks/useUnsavedChanges";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -105,13 +106,7 @@ function SettingsForm({
   useEffect(() => {
     onDirtyChange(isDirty);
   }, [isDirty, onDirtyChange]);
-  useEffect(() => {
-    const guard = (event: BeforeUnloadEvent) => {
-      if (isDirty) event.preventDefault();
-    };
-    window.addEventListener("beforeunload", guard);
-    return () => window.removeEventListener("beforeunload", guard);
-  }, [isDirty]);
+  useUnsavedChanges(isDirty);
   const disabled = isSubmitting || uploading || reloading;
   return (
     <div className="site-editor">
@@ -178,6 +173,10 @@ function SettingsForm({
                 {name === "homeImageShape" ? (
                   <select
                     id={`setting-${name}`}
+                    aria-invalid={Boolean(errors[name])}
+                    aria-describedby={
+                      errors[name] ? `setting-${name}-error` : undefined
+                    }
                     className="select-input"
                     {...register(name)}
                   >
@@ -193,6 +192,10 @@ function SettingsForm({
                   ].includes(name) ? (
                   <textarea
                     id={`setting-${name}`}
+                    aria-invalid={Boolean(errors[name])}
+                    aria-describedby={
+                      errors[name] ? `setting-${name}-error` : undefined
+                    }
                     className="admin-input"
                     rows={name === "aboutBody" ? 12 : 4}
                     {...register(name)}
@@ -200,6 +203,10 @@ function SettingsForm({
                 ) : (
                   <input
                     id={`setting-${name}`}
+                    aria-invalid={Boolean(errors[name])}
+                    aria-describedby={
+                      errors[name] ? `setting-${name}-error` : undefined
+                    }
                     className="admin-input"
                     type={
                       name === "homeImageSize"
@@ -217,7 +224,11 @@ function SettingsForm({
                   />
                 )}
                 {errors[name] && (
-                  <p className="field-error" role="alert">
+                  <p
+                    id={`setting-${name}-error`}
+                    className="field-error"
+                    role="alert"
+                  >
                     {errors[name]?.message}
                   </p>
                 )}

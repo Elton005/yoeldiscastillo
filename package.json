@@ -4,16 +4,19 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=22.12.0"
+    "node": "24.x"
   },
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "typecheck": "npm run check:architecture && tsc --noEmit",
-    "build": "npm run typecheck && vite build && node scripts/check-bundle.mjs dist",
+    "lint": "eslint src",
+    "audit:ui": "node scripts/audit-ui.mjs",
+    "audit:performance": "node scripts/audit-performance.mjs",
+    "build": "npm run typecheck && vite build && node scripts/prerender.mjs dist && node scripts/check-bundle.mjs dist",
     "build:deploy": "npm run check:deployment-env && npm run build",
     "check:deployment-env": "node scripts/check-deployment-env.mjs",
     "build:ssr": "npm run typecheck && vite build && vite build --ssr src/entry-server.tsx --outDir server && node scripts/finalize-build.mjs && node scripts/check-bundle.mjs",
-    "preview": "vite preview --host 127.0.0.1",
+    "preview": "node scripts/serve-static.mjs",
     "preview:ssr": "node scripts/serve.mjs",
     "build:pages": "npm run typecheck && node scripts/build-pages.mjs && node scripts/check-bundle.mjs dist-pages",
     "test": "vitest run",
@@ -25,6 +28,8 @@
     "check:architecture": "node scripts/check-architecture.mjs"
   },
   "dependencies": {
+    "@fontsource-variable/cinzel": "^5.3.0",
+    "@fontsource-variable/montserrat": "^5.3.0",
     "@fortawesome/fontawesome-free": "^6.5.1",
     "@hookform/resolvers": "^5.2.2",
     "@supabase/supabase-js": "^2.80.0",
@@ -41,6 +46,7 @@
     "zod": "^4.1.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@electric-sql/pglite": "^0.5.17",
     "@playwright/test": "^1.56.0",
     "@testing-library/jest-dom": "^6.9.0",
@@ -50,9 +56,12 @@
     "@types/react-dom": "^19.2.0",
     "@types/sanitize-html": "^2.16.0",
     "@vitejs/plugin-react": "^5.1.0",
+    "eslint": "^10.15.0",
     "jsdom": "^27.2.0",
+    "lighthouse": "^13.6.0",
     "sharp": "^0.35.5",
     "typescript": "^5.9.0",
+    "typescript-eslint": "^8.74.0",
     "vite": "^7.2.0",
     "vitest": "^4.0.0"
   }

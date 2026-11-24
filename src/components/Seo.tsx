@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import { metadata } from "../lib/seo";
+import { metadata, structuredData } from "../lib/seo";
 import { contentKey } from "../services/content";
 import type { Content } from "../models/content";
 export function Seo() {
@@ -9,10 +9,11 @@ export function Seo() {
   const cache = useQueryClient();
   useEffect(() => {
     const update = () => {
-      const meta = metadata(pathname, {
+      const collections = {
         libros: cache.getQueryData<Content[]>(contentKey("libros")),
         articulos: cache.getQueryData<Content[]>(contentKey("articulos")),
-      });
+      };
+      const meta = metadata(pathname, collections);
       document.title = meta.title;
       for (const [name, value] of Object.entries({
         description: meta.description,
@@ -47,6 +48,18 @@ export function Seo() {
         document.head.append(canonical);
       }
       canonical.href = meta.canonical;
+      const structured = structuredData(pathname, collections);
+      let schema = document.getElementById("structured-data");
+      if (!structured) schema?.remove();
+      else {
+        if (!schema) {
+          schema = document.createElement("script");
+          schema.id = "structured-data";
+          schema.setAttribute("type", "application/ld+json");
+          document.head.append(schema);
+        }
+        schema.textContent = JSON.stringify(structured).replace(/</g, "\\u003c");
+      }
     };
     update();
     return cache.getQueryCache().subscribe(update);

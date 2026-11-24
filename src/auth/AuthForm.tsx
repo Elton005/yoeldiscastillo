@@ -174,7 +174,7 @@ export function AuthForm({ onClose }: { onClose: () => void }) {
               </h3>
               {registering && (
                 <>
-                  <label className="visually-hidden" htmlFor="registroNombre">
+                  <label className="auth-label" htmlFor="registroNombre">
                     Nombre
                   </label>
                   <input
@@ -186,11 +186,13 @@ export function AuthForm({ onClose }: { onClose: () => void }) {
                   />
                 </>
               )}
-              <label className="visually-hidden" htmlFor="loginEmail">
+              <label className="auth-label" htmlFor="loginEmail">
                 Correo electrónico
               </label>
               <input
                 id="loginEmail"
+                aria-invalid={Boolean(errors.email)}
+                aria-describedby={errors.email ? "loginEmail-error" : undefined}
                 className="admin-input"
                 placeholder="Tu correo electrónico"
                 autoComplete="email"
@@ -198,13 +200,19 @@ export function AuthForm({ onClose }: { onClose: () => void }) {
                 {...register("email")}
               />
               {errors.email && (
-                <p className="field-error">{errors.email.message}</p>
+                <p id="loginEmail-error" className="field-error" role="alert">
+                  {errors.email.message}
+                </p>
               )}
-              <label className="visually-hidden" htmlFor="loginPassword">
+              <label className="auth-label" htmlFor="loginPassword">
                 Contraseña
               </label>
               <input
                 id="loginPassword"
+                aria-invalid={Boolean(errors.password)}
+                aria-describedby={
+                  errors.password ? "loginPassword-error" : undefined
+                }
                 className="admin-input"
                 placeholder={
                   registering ? "Contraseña (mín. 6 caracteres)" : "Contraseña"
@@ -214,7 +222,13 @@ export function AuthForm({ onClose }: { onClose: () => void }) {
                 {...register("password")}
               />
               {errors.password && (
-                <p className="field-error">{errors.password.message}</p>
+                <p
+                  id="loginPassword-error"
+                  className="field-error"
+                  role="alert"
+                >
+                  {errors.password.message}
+                </p>
               )}
               <button
                 className="btn btn--solid auth-submit"

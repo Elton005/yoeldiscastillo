@@ -61,25 +61,38 @@ try {
     "cuenta común sin membresía",
   );
   const marker = `permission-test-${crypto.randomUUID()}`;
-  for (const [table, flag] of [
+  const visibility = await admin.from("libros").select("visible").limit(0);
+  const missingVisibility =
+    visibility.error &&
+    ["42703", "PGRST204"].includes(visibility.error.code) &&
+    /\bvisible\b/i.test(visibility.error.message || "");
+  if (visibility.error && !missingVisibility)
+    throw new Error("No se pudo verificar el contrato del catálogo de staging.");
+  if (missingVisibility)
+    console.log("INFO: libros.visible no está instalado; se prueba el catálogo original sin ocultación de libros.");
+  for (const [table, visibilityFlag] of [
     ["libros", "visible"],
     ["articulos", "publicado"],
     ["destacados", "activo"],
   ]) {
+    const flag = table === "libros" && missingVisibility ? null : visibilityFlag;
+    const fixtures = flag
+      ? [
+          { titulo: marker, [flag]: true, orden: 999999 },
+          { titulo: marker, [flag]: false, orden: 999999 },
+        ]
+      : [{ titulo: marker, orden: 999999 }];
     const created = await admin
       .from(table)
-      .insert([
-        { titulo: marker, [flag]: true, orden: 999999 },
-        { titulo: marker, [flag]: false, orden: 999999 },
-      ])
-      .select("id," + flag);
+      .insert(fixtures)
+      .select(flag ? "id," + flag : "id");
     assert(
-      !created.error && created.data?.length === 2,
+      !created.error && created.data?.length === fixtures.length,
       `${table}: fixtures temporales autorizados`,
     );
     for (const row of created.data) cleanup.push([table, row.id]);
-    const visible = created.data.find((row) => row[flag]);
-    const hidden = created.data.find((row) => !row[flag]);
+    const visible = flag ? created.data.find((row) => row[flag]) : created.data[0];
+    const hidden = flag ? created.data.find((row) => !row[flag]) : undefined;
     for (const [instance, name] of [
       [anonymous, "anónimo"],
       [reader, "lector"],
@@ -92,17 +105,19 @@ try {
         !publicRead.error && publicRead.data.length === 1,
         `${table}: lectura pública de ${name}`,
       );
-      const privateRead = await instance
-        .from(table)
-        .select("id")
-        .eq("id", hidden.id);
-      assert(
-        !privateRead.error && privateRead.data.length === 0,
-        `${table}: borrador inaccesible para ${name}`,
-      );
+      if (hidden) {
+        const privateRead = await instance
+          .from(table)
+          .select("id")
+          .eq("id", hidden.id);
+        assert(
+          !privateRead.error && privateRead.data.length === 0,
+          `${table}: borrador inaccesible para ${name}`,
+        );
+      }
       const insert = await instance
         .from(table)
-        .insert({ titulo: marker, [flag]: true, orden: 999999 })
+        .insert({ titulo: marker, ...(flag ? { [flag]: true } : {}), orden: 999999 })
         .select("id");
       for (const row of insert.data ?? []) cleanup.push([table, row.id]);
       assert(permissionError(insert), `${table}: INSERT denegado a ${name}`);
